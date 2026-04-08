@@ -1,0 +1,14 @@
+{
+    "name": "laravel",
+    "version": "0.0.1",
+    "description": "A Specs Laravel specific plugin",
+    "author": {
+        "name": "Specsnl Team",
+        "email": "info@specs.nl",
+        "url": "https://github.com/specsnl"
+    },
+    "repository": "specsnl/agent-specs",
+    "license": "MIT",
+    "keywords": ["laravel", "php", "framework", "specs", "plugin"],
+    "commands": "./commands"
+}
