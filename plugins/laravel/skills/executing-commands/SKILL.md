@@ -1,6 +1,9 @@
 ---
 name: executing-commands
-description: Rules for executing commands inside the project.
+description: >
+    REQUIRED: Execute this skill before running ANY project commands (composer, npm, php, docker, etc.). 
+    This ensures all commands run safely through the Taskfile. Do not run docker compose, npm, php, 
+    or composer directly on the host.
 ---
 
 # Repository Execution Rules
