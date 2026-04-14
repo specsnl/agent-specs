@@ -9,8 +9,10 @@ Copilot: `copilot plugin install laravel@specs`
 
 ## Skills
 
-**executing-commands**:
-Rules for executing commands inside the project.
+**executing-commands**:  
+REQUIRED: Execute this skill before running ANY project commands (composer, npm, php, docker, etc.). 
+This ensures all commands run safely through the Taskfile. Do not run docker compose, npm, php, 
+or composer directly on the host.
 
 ## Commands
 
