@@ -1,0 +1,14 @@
+{
+    "name": "docker",
+    "version": "0.0.1",
+    "description": "A Specs Docker specific plugin",
+    "author": {
+        "name": "Specsnl Team",
+        "email": "info@specs.nl",
+        "url": "https://github.com/specsnl"
+    },
+    "repository": "specsnl/agent-specs",
+    "license": "MIT",
+    "keywords": ["docker", "container", "specs", "plugin"],
+    "commands": "./commands"
+}

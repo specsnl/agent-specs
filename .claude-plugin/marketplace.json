@@ -11,6 +11,10 @@
     {
       "name": "laravel",
       "source": "./plugins/laravel"
+    },
+    {
+      "name": "docker",
+      "source": "./plugins/docker"
     }
   ]
 }
