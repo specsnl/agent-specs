@@ -16,7 +16,8 @@ The marketplace namespace is `specs`. So after adding this marketplace you will 
 
 | Plugin Name | Description |
 | --- | --- |
-| laravel@specs | All Specs Laravel related skills, instructions, commands/prompts are located in this plugin. |
+| laravel@specs | A Specs Laravel specific plugin |
+| docker@specs | A Specs Docker specific plugin |
 
 ## Tasks
 
