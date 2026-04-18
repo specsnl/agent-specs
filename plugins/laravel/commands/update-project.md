@@ -20,19 +20,29 @@ If any step fails, STOP immediately and report the error.
     - If not clean: Abort immediately
         - Inform the user to commit or stash changes
 2. Synchronize with remote: `git fetch --prune`
-3. Prepare branch `vendor-updates`:
-    - If branch does not exist → create from `origin/main`
+3. Check if local `main` branch is up to date with `origin/main`:
+    - If behind → abort and inform the user to pull the latest changes.
+    - If ahead with unique commits → abort and inform the user to push or rebase their commits.
+    - If diverged → This can occur when testing locally (e.g., running `task test`) — the local branch may have commits
+    not yet pushed to the remote. Ask the user which branch to use as the source for the vendor-updates branch in step
+    4: `origin/main` or local `main`. **Choosing local `main` allows you to test iterations without pushing to the 
+    remote.**  
+    **Warning:** choosing the local main branch may lead to merge conflicts later if the remote main has commits the local
+    branch doesn't know about (common when you don't push test iterations).
+4. Prepare branch `vendor-updates`:
+    - If branch does not exist → create from the chosen branch in step 3 (`origin/main` by default, or local `main` if
+    the user selected it in a diverged state)
     - If branch exists:
-        - If fully merged into `main` → delete locally and recreate from `origin/main`.
-        - If behind on `main` and has NO unique commits → reset `vendor-updates` to `origin/main`.
+        - If fully merged into `main` → delete locally and recreate from the chosen branch.
+        - If behind on `main` and has NO unique commits → reset `vendor-updates` to the chosen branch.
         - If it contains unique commits → abort and notify user.
-4. Make sure that there is an `auth.json` file in the project root with correct credentials for private repositories if
+5. Make sure that there is an `auth.json` file in the project root with correct credentials for private repositories if
 the composer.json file contains a repositories section with private repositories like filament.
 If not, abort and inform the user to create it. Suggest to the user to run `task setup:auth`.
-5. Check if the branch does not already exist on the remote. If it does, abort and inform the user to either delete the
+6. Check if the branch does not already exist on the remote. If it does, abort and inform the user to either delete the
 remote branch.
 
-Always branch from latest `origin/main`.
+Always branch from the chosen source (see step 3).
 
 ## Phase 2 --- Environment Preparation
 
@@ -138,7 +148,7 @@ Abort if there are no changes after all update steps, and inform the user that d
     4. Docker image version updates
     5. GitHub Actions version updates
 - Branch: `vendor-updates`
-- Based on latest `origin/main`.
+- Based on the chosen source from step 3 (latest `origin/main` by default, or local `main` if selected).
 - The working tree should be clean.
 - Push the branch to the remote and create a pull request for review and merging targeting `origin/main`. The title
 should be prefixed. Check the file `.github/pr-title-checker-config.json` for what the required prefix should be. For
