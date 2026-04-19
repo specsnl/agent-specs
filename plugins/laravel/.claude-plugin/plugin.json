@@ -1,6 +1,5 @@
 {
     "name": "laravel",
-    "version": "0.0.1",
     "description": "A Specs Laravel specific plugin",
     "author": {
         "name": "Specsnl Team",

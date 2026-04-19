@@ -10,11 +10,13 @@
   "plugins": [
     {
       "name": "laravel",
-      "source": "./plugins/laravel"
+      "source": "./plugins/laravel",
+      "version": "0.0.2"
     },
     {
       "name": "docker",
-      "source": "./plugins/docker"
+      "source": "./plugins/docker",
+      "version": "0.0.2"
     }
   ]
 }
