@@ -101,6 +101,12 @@ Abort on any failure.
     repository.
     - For Docker Hub images (`mysql`, `redis`, `axllent/mailpit`, etc.): check Docker Hub for the latest stable tag
     matching the current flavour (e.g. `8.0-bookworm`, `7-bookworm`).
+    - **Version Comparison:** Compare the found version with the current version. If the new version is **lower** than
+    the current version:
+        - Try an alternative method to check for the version (e.g., if Docker Hub check gave a lower version, try
+        ghcr.io or other registries; use a different API or approach)
+        - If you cannot find a version that is **equal to or newer** than the current one, inform the user about this
+        discrepancy and skip updating that image
 3. Update any outdated image references in-place across all scanned files.
 4. After updating, rebuild the local Docker images: `task dc:build`.
 5. Reset the environment to make sure it is using the latest images: `task reset`.
@@ -119,6 +125,12 @@ Abort on any failure.
 2. For each external action (e.g. actions/checkout@v6, shivammathur/setup-php@v2), use the GitHub Releases API to find
 the latest release tag. Check every action individually — do not assume that a major-version tag (e.g. @v6) is already
 current. A newer major version may exist.
+    - **Version Comparison:** Compare the found version with the current version. If the new version is **lower** than
+    the current version:
+        - Try an alternative method to check for the version (e.g., use a different API endpoint, check the GitHub
+        marketplace, or try a different source for release information)
+        - If you cannot find a version that is **equal to or newer** than the current one, inform the user about this
+        discrepancy and skip updating that action
 3. Update any outdated action versions in-place across all scanned files.
 4. Check `git status` for all changed files. Commit separately if there are any changes.
 Commit message: `chore(deps): Updated GitHub Actions versions`.
