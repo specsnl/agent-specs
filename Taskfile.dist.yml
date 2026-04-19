@@ -92,3 +92,9 @@ tasks:
       - cp .githooks/pre-commit .git/hooks/pre-commit
       - chmod +x .git/hooks/pre-commit
       - echo ">> Git hooks installed"
+
+  hooks:uninstall:
+    desc: Uninstall git hooks
+    cmds:
+      - rm -f .git/hooks/pre-commit
+      - echo ">> Git hooks uninstalled"
