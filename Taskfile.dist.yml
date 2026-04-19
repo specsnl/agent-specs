@@ -85,3 +85,10 @@ tasks:
     cmds:
       - claude plugin install laravel@specs
       - copilot plugin install laravel@specs
+
+  hooks:install:
+    desc: Install git hooks
+    cmds:
+      - cp .githooks/pre-commit .git/hooks/pre-commit
+      - chmod +x .git/hooks/pre-commit
+      - echo ">> Git hooks installed"

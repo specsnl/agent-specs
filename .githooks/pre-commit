@@ -1,0 +1,9 @@
+#!/bin/bash
+set -e
+
+docker run \
+  --rm \
+  --volume "$(git rev-parse --show-toplevel):/workspace" \
+  --env AUTO_STAGE=true \
+  ghcr.io/specsnl/utils:1.11.2 \
+  bash .githooks/bump-versions.sh
