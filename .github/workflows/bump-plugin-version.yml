@@ -26,7 +26,7 @@ jobs:
           token: ${{ steps.app-token.outputs.token }}
 
       - name: Detect plugin changes
-        uses: dorny/paths-filter@v3
+        uses: dorny/paths-filter@v4
         id: filter
         with:
           filters: |
