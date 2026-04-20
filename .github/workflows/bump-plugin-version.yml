@@ -5,18 +5,25 @@ on:
     branches:
       - main
 
-permissions:
-  contents: write
+env:
+  BOT_USER_ID: 277490085
 
 jobs:
   bump-version:
     runs-on: ubuntu-latest
     steps:
+      - name: Generate app token
+        uses: actions/create-github-app-token@v3
+        id: app-token
+        with:
+          client-id: ${{ vars.SPECS_APP_CLIENT_ID }}
+          private-key: ${{ secrets.SPECS_APP_PRIVATE_KEY }}
+
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ steps.app-token.outputs.token }}
 
       - name: Detect plugin changes
         uses: dorny/paths-filter@v3
@@ -32,10 +39,12 @@ jobs:
           bash .githooks/bump-versions.sh
 
           MARKETPLACE_FILE=".claude-plugin/marketplace.json"
-          git config user.name "${{ github.event.head_commit.author.name }}"
-          git config user.email "${{ github.event.head_commit.author.email }}"
+          git config user.name "specsnl-bot[bot]"
+          git config user.email "${BOT_USER_ID}+specsnl-bot[bot]@users.noreply.github.com"
           git add "$MARKETPLACE_FILE"
           git diff --cached --quiet || (
             git commit -m "chore: bump plugin version(s)"
             git push
           )
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
