@@ -40,7 +40,7 @@ for plugin_name in $plugins_to_bump; do
   IFS='.' read -r maj min patch <<< "$current"
   new="$maj.$min.$((patch + 1))"
 
-  jq --arg n "$plugin_name" --arg v "$new" \
+  jq --indent 4 --arg n "$plugin_name" --arg v "$new" \
     '.plugins |= map(if .name==$n then .version=$v else . end)' \
     "$MARKETPLACE_FILE" > "$MARKETPLACE_FILE.tmp"
 

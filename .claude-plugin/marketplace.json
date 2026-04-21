@@ -1,22 +1,22 @@
 {
-  "name": "specs",
-  "owner": {
-    "name": "Specsnl Team",
-    "email": "info@specs.nl"
-  },
-  "metadata": {
-    "description": "A collection of plugins for Specs"
-  },
-  "plugins": [
-    {
-      "name": "laravel",
-      "source": "./plugins/laravel",
-      "version": "0.0.3"
+    "name": "specs",
+    "owner": {
+        "name": "Specsnl Team",
+        "email": "info@specs.nl"
     },
-    {
-      "name": "docker",
-      "source": "./plugins/docker",
-      "version": "0.0.2"
-    }
-  ]
+    "metadata": {
+        "description": "A collection of plugins for Specs"
+    },
+    "plugins": [
+        {
+            "name": "laravel",
+            "source": "./plugins/laravel",
+            "version": "0.0.3"
+        },
+        {
+            "name": "docker",
+            "source": "./plugins/docker",
+            "version": "0.0.2"
+        }
+    ]
 }
