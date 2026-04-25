@@ -3,6 +3,10 @@ version: "3"
 
 silent: true
 
+vars:
+  MARKETPLACE_NAME: specs
+  MARKETPLACE_REPO: specsnl/agent-specs
+
 tasks:
   marketplace:add:
     desc: Add this marketplace to Claude and Copilot
@@ -14,9 +18,9 @@ tasks:
     desc: Add this marketplace using the remote repository
     cmds:
       - echo ">> Adding marketplace to Claude..."
-      - claude plugin marketplace add specsnl/agent-specs
+      - claude plugin marketplace add {{.MARKETPLACE_REPO}}
       - echo ">> Adding marketplace to Copilot..."
-      - cmd: copilot plugin marketplace add specsnl/agent-specs
+      - cmd: copilot plugin marketplace add {{.MARKETPLACE_REPO}}
         ignore_error: true
 
   marketplace:add:claude:
@@ -54,7 +58,7 @@ tasks:
         msg: "Claude is not installed. Please install Claude to add this marketplace."
     cmds:
       - echo ">> Removing marketplace from Claude..."
-      - cmd: claude plugin marketplace remove specs
+      - cmd: claude plugin marketplace remove {{.MARKETPLACE_NAME}}
         ignore_error: true
 
   marketplace:remove:copilot:
@@ -65,7 +69,7 @@ tasks:
         msg: "Copilot is not installed. Please install Copilot to add this marketplace."
     cmds:
       - echo ">> Removing marketplace from Copilot..."
-      - cmd: copilot plugin marketplace remove specs --force
+      - cmd: copilot plugin marketplace remove {{.MARKETPLACE_NAME}} --force
         ignore_error: true
 
   marketplace:reset:
@@ -74,17 +78,24 @@ tasks:
       - task: marketplace:remove
       - task: marketplace:add
 
+  plugin:list:
+    desc: List available plugins
+    cmds:
+      - copilot plugin marketplace browse specs
+
   marketplace:update:
     desc: Update this marketplace in Claude and Copilot
     cmds:
-      - claude plugin marketplace update specs
-      -
+      - claude plugin marketplace update {{.MARKETPLACE_NAME}}
+      - copilot plugin marketplace update {{.MARKETPLACE_NAME}}
 
-  plugin:install:laravel:
-    desc: Install the Laravel plugin in Claude and Copilot
+  plugin:install:*:
+    desc: Install a plugin in Claude and Copilot
+    vars:
+      PLUGIN: '{{index .MATCH 0}}'
     cmds:
-      - claude plugin install laravel@specs
-      - copilot plugin install laravel@specs
+      - claude plugin install {{.PLUGIN}}@{{.MARKETPLACE_NAME}}
+      - copilot plugin install {{.PLUGIN}}@{{.MARKETPLACE_NAME}}
 
   hooks:install:
     desc: Install git hooks
