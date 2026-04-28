@@ -1,6 +1,6 @@
 ---
 name: ci-green-check
-description: |
+description: >
   Use this skill after every code change in a repository to discover and run all CI checks locally before finishing work. Triggers automatically after completing any code edit, bug fix, refactor, or feature implementation in a Laravel/PHP repository. Also triggers when the user says "run the checks", "make sure everything is green", "verify the build", or "are the tests passing?". This skill reads .github/workflows to discover what checks exist, runs everything that can be run locally (tests, linters, static analysis), attempts to auto-fix any failures, and reports checks that require cloud/secrets so the user is aware. Never consider a task done until all locally runnable checks pass.
 ---
  
