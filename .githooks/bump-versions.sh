@@ -5,6 +5,11 @@ set -e
 
 MARKETPLACE_FILE=".claude-plugin/marketplace.json"
 
+# In CI, ensure this is a merge commit (only allowed merge strategy for main)
+if [ "$GITHUB_ACTIONS" = "true" ] && ! git rev-parse HEAD^2 &>/dev/null; then
+  exit 0
+fi
+
 # Get changed files
 if [ -z "$STAGED_FILES" ]; then
   STAGED_FILES=$(git diff --cached --name-only)
@@ -20,11 +25,13 @@ plugins_to_bump=$(echo "$changed_files" | grep '^plugins/' | cut -d'/' -f2 | sor
 
 [ -z "$plugins_to_bump" ] && exit 0
 
+# Determine base commit: workflow uses HEAD~1, local hook uses branch divergence point
+base_commit=$([ "$GITHUB_ACTIONS" = "true" ] && echo "HEAD~1" || git merge-base HEAD main)
+
 # Get base versions for skip logic
-base_ref="origin/main"
-git rev-parse "$base_ref" &>/dev/null || base_ref="HEAD~1"
-merge_base=$(git merge-base HEAD "$base_ref" 2>/dev/null || echo "HEAD")
-base_versions=$(git show "$merge_base:$MARKETPLACE_FILE" 2>/dev/null | jq '[.plugins[] | {(.name): .version}] | add' || echo '{}')
+# Compare against the base of the branch, ensuring we skip if version was bumped
+# anywhere in the feature branch or PR (not just the immediately previous commit)
+base_versions=$(git show "$base_commit:$MARKETPLACE_FILE" 2>/dev/null | jq '[.plugins[] | {(.name): .version}] | add' || echo '{}')
 
 # Bump versions
 for plugin_name in $plugins_to_bump; do
