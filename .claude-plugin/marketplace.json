@@ -11,7 +11,7 @@
         {
             "name": "laravel",
             "source": "./plugins/laravel",
-            "version": "0.0.7"
+            "version": "0.0.8"
         },
         {
             "name": "docker",
