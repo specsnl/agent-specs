@@ -11,6 +11,10 @@ All commands MUST be executed via `task`. Never run composer, npm, node, or php 
 
 If any step fails, STOP immediately and report the error.
 
+## Commit Strategy
+
+When committing changes at the end of each phase, only stage files that are directly related to that phase's purpose. If other files have changed that are unrelated to the phase (e.g., a markdown file or documentation updated as a side-effect of running a command), commit those separately with a descriptive commit message that reflects what those changes actually are. Never bundle unrelated changes into a phase commit.
+
 ## Phase 1 --- Repository Safety Checks
 
 1. Ensure the working (git) tree is clean:
@@ -65,9 +69,12 @@ abort and report the errors.
     errors.
     - If there are any PHPUnit test failures, try to fix them. Do not fix test failures by skipping tests. If you cannot
     fix the test failures, abort and report the errors.
-3. Check git status for all changed or newly tracked files resulting from the update (including files modified by
-post-update scripts such as AGENTS.md, skill files, or published assets). Stage all relevant changes and commit.
-Commit message: chore(deps): Updated Composer dependencies.
+3. Check git status for all changed or newly tracked files resulting from the update. Group them by purpose:
+    - Stage only files directly related to the Composer update (e.g., `composer.lock`, `vendor/`, published package
+    assets) and commit. Commit message: `chore(deps): Updated Composer dependencies`.
+    - For any remaining unrelated files (e.g., `AGENTS.md`, skill files, markdown docs updated as a side-effect),
+    create a separate commit per logical group with a descriptive message that reflects what those changes are
+    (e.g., `docs: Updated AGENTS.md`).
 4. If there are no changes, skip the commit step and move on to the next phase.
 
 Abort on any failure.
@@ -84,7 +91,9 @@ Abort on any failure.
 
 1. Update NPM dependencies: `task npm:update`.
 2. Build assets: `task npm:run:build`.
-3. Commit separately if there are any changes. Commit message: `chore(deps): Updated NPM dependencies`.
+3. Check git status for all changed files. Stage only files directly related to the NPM update (e.g.,
+`package-lock.json`, `node_modules/`, built assets) and commit. Commit message: `chore(deps): Updated NPM
+dependencies`. For any remaining unrelated changed files, commit them separately with a descriptive message.
 4. If there are no changes, skip the commit step and move on to the next phase.
 
 Abort on any failure.
@@ -111,8 +120,10 @@ Abort on any failure.
 4. After updating, rebuild the local Docker images: `task dc:build`.
 5. Reset the environment to make sure it is using the latest images: `task reset`.
 6. Run full backend checks: `task checkall`.
-7. Check `git status` for all changed files. Commit separately if there are any changes.
-Commit message: `chore(deps): Updated Docker image versions`.
+7. Check `git status` for all changed files. Stage only files directly related to Docker image updates (e.g.,
+`compose.yml`, `php/Dockerfile`, `nginx/Dockerfile`, `.github/workflows/*.yml`) and commit. Commit message:
+`chore(deps): Updated Docker image versions`. For any remaining unrelated changed files, commit them separately
+with a descriptive message.
 8. If there are no changes, skip the commit step and move on to the next phase.
 
 Abort on any failure.
@@ -132,8 +143,10 @@ current. A newer major version may exist.
         - If you cannot find a version that is **equal to or newer** than the current one, inform the user about this
         discrepancy and skip updating that action
 3. Update any outdated action versions in-place across all scanned files.
-4. Check `git status` for all changed files. Commit separately if there are any changes.
-Commit message: `chore(deps): Updated GitHub Actions versions`.
+4. Check `git status` for all changed files. Stage only files directly related to GitHub Actions updates (e.g.,
+`.github/workflows/*.yml`, `.github/actions/**/*.yml`) and commit. Commit message:
+`chore(deps): Updated GitHub Actions versions`. For any remaining unrelated changed files, commit them separately
+with a descriptive message.
 5. If there are no changes, skip the commit step and move on to the next phase.
 
 Abort on any failure.
@@ -153,7 +166,8 @@ dependencies. If there are any, create a summary and suggest to the user to upda
 
 Abort if there are no changes after all update steps, and inform the user that dependencies are already up to date.
 
-- There could be up to 5 commits on the `vendor-updates` branch:
+- There could be up to 5 commits on the `vendor-updates` branch (more if unrelated side-effect changes were
+committed separately per the Commit Strategy):
     1. Composer updates
     2. NPM package manager version update
     3. NPM dependency updates
