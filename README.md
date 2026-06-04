@@ -18,6 +18,7 @@ The marketplace namespace is `specs`. So after adding this marketplace you will 
 | --- | --- |
 | laravel@specs | A Specs Laravel specific plugin |
 | docker@specs | A Specs Docker specific plugin |
+| linear@specs | A Specs plugin for creating Linear issues from raw client input |
 
 ## Tasks
 
