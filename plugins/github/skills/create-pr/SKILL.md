@@ -63,7 +63,7 @@ In other projects: run whatever checks are discovered in Phase 1 that can run lo
 ## Phase 3 — Ensure branch and commits are ready
 
 - Confirm the working tree is clean (`git status`)
-- Confirm not on `main`/`master` — if so, create a branch first:
+- Confirm not on `main`/`master`/`develop` — if so, create a branch first:
   ```bash
   git checkout -b kebab-case-description
   ```
