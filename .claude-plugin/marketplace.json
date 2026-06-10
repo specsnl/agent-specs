@@ -22,6 +22,11 @@
             "name": "linear",
             "source": "./plugins/linear",
             "version": "0.0.2"
+        },
+        {
+            "name": "github",
+            "source": "./plugins/github",
+            "version": "0.0.1"
         }
     ]
 }

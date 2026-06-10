@@ -41,7 +41,7 @@ For each identified value, produce the correct {{TARGET_LANGUAGE}} translation. 
 
 - Translate naturally — not word-for-word. Use the tone of the surrounding context.
 - {{FORMALITY_NOTE}}
-- Plural forms using Laravel's `|` syntax must be preserved: `'{1}in :count day|[2,*]in :count days'` → translate each segment, keep the `|` syntax intact.
+- Plural forms using Laravel's `|` syntax must be preserved: `'{\1'}in :count day|[2,*]in :count days'` → translate each segment, keep the `|` syntax intact.
 - Fix typos
 - Fix wrong translations
 - Fix mixed-language values
@@ -50,20 +50,19 @@ Edit each file directly using precise string replacements. Do not reformat or re
 
 ### Phase 3 — Commit
 
-Stage all modified translation files by name (never `git add -A`). Commit with a message that describes what changed:
+Stage all modified translation files by name (never `git add -A`). Commit with a **single subject line**:
 
 ```
 Translate remaining source-language strings in {{TARGET_LANGUAGE}} translation files
-
-Fixes untranslated labels, placeholders, and messages across <N> files:
-<comma-separated list of changed files>.
 ```
 
 ### Phase 4 — Create PR
 
-Push the branch and create a PR with `gh pr create`.
+Invoke the `create-pr` skill to push the branch and open the PR.
 
-**PR title format** (required — CI will fail without it):
+Provide the following title and body:
+
+**PR title** (required — CI will fail without it):
 ```
 {{PR_TITLE_PREFIX}}: Translate remaining source-language strings in {{TARGET_LANGUAGE}} translation files
 ```
@@ -71,9 +70,14 @@ Push the branch and create a PR with `gh pr create`.
 - If the user provided a Linear issue number, use it: e.g. `{{PR_TITLE_EXAMPLE}}`
 - If no issue number was provided, use: `{{PR_TITLE_PREFIX_ZERO}}`
 
-**PR body** must include:
-- A summary of what was changed (table with file → changes)
-- A test plan checklist
+**PR body**:
+```md
+## Summary
+- Translated remaining source-language strings in {{TARGET_LANGUAGE}} translation files
+
+## Test plan
+- [ ] Verify translations look correct in the UI
+```
 
 ---
 

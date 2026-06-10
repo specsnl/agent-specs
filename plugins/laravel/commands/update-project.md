@@ -176,16 +176,20 @@ committed separately per the Commit Strategy):
 - Branch: `vendor-updates`
 - Based on the chosen source from step 3 (latest `origin/main` by default, or local `main` if selected).
 - The working tree should be clean.
-- Push the branch to the remote and create a pull request for review and merging targeting `origin/main`. The title
-should be prefixed. Check the file `.github/pr-title-checker-config.json` for what the required prefix should be. For
-example, it could be `KLIN-000: Update dependencies`.
-- Add a Pull Request description that explains the changes and any relevant details about the updates. Stick to the
-commit messages, but remove the "chore" prefix. For example:
+- Invoke the `create-pr` skill to push the branch and open the PR.
 
-```md
-Updated backend and frontend dependencies:
+  Provide the following title and body:
 
-- Updated Composer dependencies
-- Updated NPM package manager version
-- Updated NPM dependencies
-```
+  **PR title**: check `.github/pr-title-checker-config.json` for the required prefix, e.g. `KLIN-000: Update dependencies`.
+
+  **PR body**:
+  ```md
+  ## Summary
+  - Updated Composer dependencies
+  - Updated NPM dependencies
+  - Updated Docker image versions
+  - Updated GitHub Actions versions
+
+  ## Test plan
+  - [ ] CI passes
+  ```
