@@ -24,6 +24,18 @@ Automatically detect and fix misaligned markdown tables across all `.md` files i
 Runs `markdown-table-formatter` via Docker and rewrites tables in-place. Always review the diff
 afterwards to confirm only whitespace/padding changed — no content should be altered.
 
+**fix-translations**:  
+Find, fix, or translate source-language values in translation files. Scans all translation files
+for untranslated values, translates them to the target language, fixes errors and typos, commits
+the changes, and opens a PR.
+
+**e2e-filament-multitenant**:  
+Write, expand, or structure Playwright end-to-end tests for a Laravel + Filament
+(Spatie-permission) application, especially multi-tenant apps with several panels/roles. Covers the
+per-role storageState auth model, shared helpers, a per-role coverage matrix (CRUD / state-machine
+workflows / permission boundaries / tenant isolation), a deterministic test-data strategy, the CI
+job recipe, and Filament-specific selector conventions.
+
 ## Commands
 
 **update-project**:  
