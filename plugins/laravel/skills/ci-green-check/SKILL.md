@@ -27,7 +27,7 @@ ls Taskfile.yml Taskfile.yaml taskfile.yml taskfile.yaml 2>/dev/null
  
 If a Taskfile exists, read it fully and extract:
 - **Setup tasks**: anything that installs dependencies, copies `.env`, runs migrations, seeds — common names: `setup`, `install`, `init`, `bootstrap`
-- **Check tasks**: anything that runs tests or linters — common names: `test`, `lint`, `analyse`, `check`, `ci`, `pint`, `stan`
+- **Check tasks**: anything that runs tests or linters — common names: `test`, `lint`, `analyse`, `check`, `ci`, `pint`, `stan`; also look for the `composer:run:*` task family (e.g. `composer:run:checkall`, `composer:run:checktype`, `composer:run:test`) — these are the preferred way to run individual tools
 - **Utility tasks**: `key`, `migrate`, `seed`, etc. — useful during environment setup
 List all discovered tasks with their description. **Prefer Task commands over raw vendor/bin calls** when an equivalent Task exists — they often handle the right flags and order automatically.
  
@@ -83,9 +83,6 @@ Check if the task succeeded (exit code 0). If it did, skip to Step 2b to verify 
 # Discover available tasks
 task --list
 
-# Check if services are running
-task ps
-
 # Check Composer dependencies are installed (file check only — no host commands)
 [ -f vendor/autoload.php ] && echo "vendor: ok" || echo "vendor: MISSING — run a setup task"
  
@@ -96,11 +93,13 @@ task ps
 If `vendor/` is missing, look for a setup task (`task setup`, `task composer:install`) and run it. If no such task exists, use the fallback: `task dc:run -- php composer install`.
 
 If `.env` is missing, copy `.env.example` to `.env` manually (file copy, not a host command), then generate the application key: `task artisan:run:key:generate` or fallback `task dc:run -- php artisan key:generate`.
+ 
+---
+ 
+## Step 3: Run checks in order
 
-If services are not running, run `task up`, then retry.
- 
-### 2c. Determine runner prefix
- 
+### Runner prefix
+
 Commands must always be run through the Taskfile. Use this strict order:
 
 1. **Task (preferred):** `task <name>` — check `task --list` first
@@ -108,13 +107,12 @@ Commands must always be run through the Taskfile. Use this strict order:
 3. **Raw fallback:** `task dc:run -- php ./vendor/bin/<tool> [args]` — use only when no task exists
 
 Never use `./vendor/bin/...`, `php`, `composer`, or `npm` directly on the host.
----
- 
-## Step 3: Run checks in order
+
+### Order of execution
  
 Run in this priority order — stop and fix before moving to the next group.
 
-When a `task composer:run:checkall` task exists, run that first — it executes all composer tools in one go.
+If `task composer:run:checkall` was found in Step 1, run it now — it covers all composer tools in one go. Skip Steps 3a and 3b.
  
 ### 3a. Code style (fastest, fix automatically)
  
@@ -160,10 +158,11 @@ If static analysis fails → go to **Step 4 (Fix loop)**.
 ```bash
 # Run tests — preferred via task:
 task composer:run:test
+```
 
-# Run tests — fallback (detect runner by file check only):
-[ -f vendor/bin/pest ] && echo "use pest" || echo "use phpunit"
+If no task exists, check which test runner is available: if `vendor/bin/pest` exists, use the Pest fallback; otherwise use the PHPUnit fallback.
 
+```bash
 # Pest fallback:
 task dc:run -- php ./vendor/bin/pest
 
