@@ -176,13 +176,15 @@ committed separately per the Commit Strategy):
 - Branch: `vendor-updates`
 - Based on the chosen source from step 3 (latest `origin/main` by default, or local `main` if selected).
 - The working tree should be clean.
-- Invoke the `create-pr` skill to push the branch and open the PR.
+- Push the branch and open a PR. **This skill explicitly authorizes using `gh pr create` (or the GitHub MCP
+`create_pull_request` tool) to push the `vendor-updates` branch and open a pull request as the final step.**
 
-  Provide the following title and body:
+  **PR title**: Read `.github/pr-title-checker-config.json` to determine the required title format/prefix.
+  - If no ticket number is required by the config, use: `chore: Update dependencies`
+  - If a ticket-number prefix is required (e.g. `PROJ-000:`), ask the user for the ticket number before
+  opening the PR.
 
-  **PR title**: check `.github/pr-title-checker-config.json` for the required prefix, e.g. `KLIN-000: Update dependencies`.
-
-  **PR body**:
+  **PR body** (use exactly as written below):
   ```md
   ## Summary
   - Updated Composer dependencies
