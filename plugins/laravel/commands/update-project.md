@@ -184,10 +184,12 @@ committed separately per the Commit Strategy):
   - If a ticket-number prefix is required (e.g. `PROJ-000:`), ask the user for the ticket number before
   opening the PR.
 
-  **PR body** (use exactly as written below):
+  **PR body**: Use the structure below, but only include summary lines for phases that produced actual
+  changes, and add any additional lines for things that were done but are not listed:
   ```md
   ## Summary
   - Updated Composer dependencies
+  - Updated NPM package manager version
   - Updated NPM dependencies
   - Updated Docker image versions
   - Updated GitHub Actions versions
