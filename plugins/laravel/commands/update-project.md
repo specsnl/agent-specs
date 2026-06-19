@@ -9,7 +9,8 @@ Perform a full dependency update of the project.
 
 All commands MUST be executed via `task`. Never run composer, npm, node, or php directly on the host.
 
-If any step fails, STOP immediately and report the error.
+Each phase specifies its own error-handling policy. Some phases allow attempting a fix before
+aborting — follow the per-phase instructions rather than a blanket stop rule.
 
 ## Commit Strategy
 
@@ -24,34 +25,36 @@ When committing changes at the end of each phase, only stage files that are dire
     - If not clean: Abort immediately
         - Inform the user to commit or stash changes
 2. Synchronize with remote: `git fetch --prune`
-3. Check if local `main` branch is up to date with `origin/main`:
+3. Check if `vendor-updates` already exists on the remote. If it does, abort and inform the user
+to delete the remote branch before continuing.
+4. Check if local `main` branch is up to date with `origin/main`:
     - If behind → abort and inform the user to pull the latest changes.
     - If ahead with unique commits → abort and inform the user to push or rebase their commits.
     - If diverged → This can occur when testing locally (e.g., running `task test`) — the local branch may have commits
     not yet pushed to the remote. Ask the user which branch to use as the source for the vendor-updates branch in step
-    4: `origin/main` or local `main`. **Choosing local `main` allows you to test iterations without pushing to the 
+    5: `origin/main` or local `main`. **Choosing local `main` allows you to test iterations without pushing to the 
     remote.**  
     **Warning:** choosing the local main branch may lead to merge conflicts later if the remote main has commits the local
     branch doesn't know about (common when you don't push test iterations).
-4. Prepare branch `vendor-updates`:
-    - If branch does not exist → create from the chosen branch in step 3 (`origin/main` by default, or local `main` if
+5. Prepare branch `vendor-updates`:
+    - If branch does not exist → create from the chosen branch in step 4 (`origin/main` by default, or local `main` if
     the user selected it in a diverged state)
     - If branch exists:
         - If fully merged into `main` → delete locally and recreate from the chosen branch.
         - If behind on `main` and has NO unique commits → reset `vendor-updates` to the chosen branch.
         - If it contains unique commits → abort and notify user.
-5. Make sure that there is an `auth.json` file in the project root with correct credentials for private repositories if
+6. Make sure that there is an `auth.json` file in the project root with correct credentials for private repositories if
 the composer.json file contains a repositories section with private repositories like filament.
 If not, abort and inform the user to create it. Suggest to the user to run `task setup:auth`.
-6. Check if the branch does not already exist on the remote. If it does, abort and inform the user to either delete the
-remote branch.
 
-Always branch from the chosen source (see step 3).
+Always branch from the chosen source (see step 4).
 
 ## Phase 2 --- Environment Preparation
 
-1. Start project: `task up`.
-2. Ensure environment is refreshed. This makes sure all dependencies are installed according to their respective lock.
+1. Invoke the `executing-commands` skill to confirm which task targets are available in this
+project's Taskfile before running any commands.
+2. Start project: `task up`.
+3. Ensure environment is refreshed. This makes sure all dependencies are installed according to their respective lock
 files. It will also rebuild the frontend assets. Run the command: `task refresh`.
 
 Abort if any command fails.
@@ -60,15 +63,18 @@ Abort if any command fails.
 
 1. Update Composer dependencies: `task composer:update` (This task must internally run `composer update -W` inside the
 PHP container).
-2. Run full backend checks: `task checkall`. If any check fails, try to fix the issues. If you cannot fix the issues,
+2. Run full backend checks: `task checkall`. If any check fails, attempt to fix the issue, then
+re-run `task checkall` to confirm resolution before proceeding. If you cannot fix the issues,
 abort and report the errors.
-    - If there are any style issues try and run `task composer:run:fixstyle` to automatically fix them. If that does not
-    work try to fix style issues manually If you cannot fix the style issues, abort and report the errors.
-    - If there are any PHPStan issues, try to fix them. Do not fix PHPStan issues by adding them to the PHPStan baseline
-    file or by adding annotations like `@phpstan-ignore`. If you cannot fix the PHPStan issues, abort and report the
-    errors.
-    - If there are any PHPUnit test failures, try to fix them. Do not fix test failures by skipping tests. If you cannot
-    fix the test failures, abort and report the errors.
+    - If there are any style issues, run `task composer:run:fixstyle` to automatically fix them.
+    If that does not work, try to fix style issues manually. Re-run `task checkall` after each
+    attempt. If you cannot fix the style issues, abort and report the errors.
+    - If there are any PHPStan issues, try to fix them. Do not fix PHPStan issues by adding them to
+    the PHPStan baseline file or by adding annotations like `@phpstan-ignore`. Re-run `task checkall`
+    after each fix attempt. If you cannot fix the PHPStan issues, abort and report the errors.
+    - If there are any PHPUnit test failures, try to fix them. Do not fix test failures by skipping
+    tests. Re-run `task checkall` after each fix attempt. If you cannot fix the test failures, abort
+    and report the errors.
 3. Check git status for all changed or newly tracked files resulting from the update. Group them by purpose:
     - Stage only files directly related to the Composer update (e.g., `composer.lock`, `vendor/`, published package
     assets) and commit. Commit message: `chore(deps): Updated Composer dependencies`.
@@ -76,8 +82,6 @@ abort and report the errors.
     create a separate commit per logical group with a descriptive message that reflects what those changes are
     (e.g., `docs: Updated AGENTS.md`).
 4. If there are no changes, skip the commit step and move on to the next phase.
-
-Abort on any failure.
 
 ## Phase 4 --- NPM package manager version
 
@@ -111,11 +115,14 @@ Abort on any failure.
     - For Docker Hub images (`mysql`, `redis`, `axllent/mailpit`, etc.): check Docker Hub for the latest stable tag
     matching the current flavour (e.g. `8.0-bookworm`, `7-bookworm`).
     - **Version Comparison:** Compare the found version with the current version. If the new version is **lower** than
-    the current version:
-        - Try an alternative method to check for the version (e.g., if Docker Hub check gave a lower version, try
-        ghcr.io or other registries; use a different API or approach)
-        - If you cannot find a version that is **equal to or newer** than the current one, inform the user about this
-        discrepancy and skip updating that image
+    the current version, use the following concrete fallbacks:
+        - For Docker Hub images: query the tags endpoint directly sorted by last_updated —
+          `GET https://hub.docker.com/v2/repositories/library/<image>/tags?page_size=100&ordering=last_updated`
+          (use `/repositories/<namespace>/<image>/tags?...` for non-official images). Pick the latest
+          stable tag that matches the current flavour (e.g. `8.0-bookworm`).
+        - For `ghcr.io` images: try the GitHub Releases API as the fallback.
+        - If you still cannot find a version **equal to or newer** than the current one, inform the user
+          about this discrepancy and skip updating that image.
 3. Update any outdated image references in-place across all scanned files.
 4. After updating, rebuild the local Docker images: `task dc:build`.
 5. Reset the environment to make sure it is using the latest images: `task reset`.
@@ -137,11 +144,11 @@ Abort on any failure.
 the latest release tag. Check every action individually — do not assume that a major-version tag (e.g. @v6) is already
 current. A newer major version may exist.
     - **Version Comparison:** Compare the found version with the current version. If the new version is **lower** than
-    the current version:
-        - Try an alternative method to check for the version (e.g., use a different API endpoint, check the GitHub
-        marketplace, or try a different source for release information)
-        - If you cannot find a version that is **equal to or newer** than the current one, inform the user about this
-        discrepancy and skip updating that action
+    the current version, use the following concrete fallback:
+        - Query the Tags API: `GET https://api.github.com/repos/<owner>/<repo>/tags`. Use the highest
+          tag that matches the versioning scheme in use (e.g. `v4`, `v4.2.1`).
+        - If you still cannot find a version **equal to or newer** than the current one, inform the user
+          about this discrepancy and skip updating that action.
 3. Update any outdated action versions in-place across all scanned files.
 4. Check `git status` for all changed files. Stage only files directly related to GitHub Actions updates (e.g.,
 `.github/workflows/*.yml`, `.github/actions/**/*.yml`) and commit. Commit message:
@@ -152,6 +159,9 @@ with a descriptive message.
 Abort on any failure.
 
 ## Phase 8 --- Final Checks
+
+Phase 8 is informational only — findings here do not block the PR. Create the PR first (see Final
+State below), then report the Phase 8 summary to the user.
 
 1. Run the following audit commands and create a summary of the results. Suggest to the user to fix any of the issues
 that are found:
@@ -174,18 +184,21 @@ committed separately per the Commit Strategy):
     4. Docker image version updates
     5. GitHub Actions version updates
 - Branch: `vendor-updates`
-- Based on the chosen source from step 3 (latest `origin/main` by default, or local `main` if selected).
+- Based on the chosen source from step 4 (latest `origin/main` by default, or local `main` if selected).
 - The working tree should be clean.
-- Push the branch and open a PR. **This skill explicitly authorizes using `gh pr create` (or the GitHub MCP
-`create_pull_request` tool) to push the `vendor-updates` branch and open a pull request as the final step.**
+- **This skill explicitly authorizes invoking the `create-pr` skill to push the `vendor-updates`
+  branch and open the pull request as the final step.** The `create-pr` skill will handle title
+  format discovery and branch push. Because `task checkall` has already run during the update phases,
+  you may skip the `ci-green-check` step inside `create-pr` (treat it as already satisfied).
 
-  **PR title**: Read `.github/pr-title-checker-config.json` to determine the required title format/prefix.
-  - If no ticket number is required by the config, use: `chore: Update dependencies`
-  - If a ticket-number prefix is required (e.g. `PROJ-000:`), ask the user for the ticket number before
-  opening the PR.
+  Pass the following suggested title and body to the `create-pr` skill:
 
-  **PR body**: Use the structure below, but only include summary lines for phases that produced actual
-  changes, and add any additional lines for things that were done but are not listed:
+  **Suggested PR title**: `chore: Update dependencies` — the `create-pr` skill will verify the
+  format against `.github/pr-title-checker-config.json` and ask for a ticket number if one is required.
+
+  **Suggested PR body**: Include only the bullets for phases that produced actual changes. If any
+  additional side-effect commits were made (e.g. `docs: Updated AGENTS.md`), add them as extra bullets
+  under `## Summary`.
   ```md
   ## Summary
   - Updated Composer dependencies
