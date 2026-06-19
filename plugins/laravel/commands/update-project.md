@@ -193,5 +193,5 @@ committed separately per the Commit Strategy):
   - Updated GitHub Actions versions
 
   ## Test plan
-  - [ ] CI passes
+  - [ ] Review the dependency changelog(s) for any breaking changes or notable updates.
   ```
