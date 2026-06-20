@@ -5,6 +5,13 @@ description: >
 ---
  
 # CI Green Check — Laravel/PHP
+
+> **Prerequisite — Command execution rules apply.**
+> The `executing-commands` skill governs how every command in this skill must be run.
+> Never run `php`, `composer`, `npm`, `node`, `docker`, or `docker compose` directly on the host.
+> Always use `task <task-name>`. If no task exists, use `task dc:run -- php <command>` as a fallback.
+> When `task --list` shows a task with `*` (e.g. `task composer:run:*` or `task artisan:run:*`), the `*` is a placeholder — replace it with the composer script or artisan command name. Extra arguments go after `--` (e.g. `task composer:run:audit -- --strict`).
+> Run `task --list` to discover available tasks before reaching for a raw command.
  
 After every code change, discover and run all CI checks found in `.github/` and get them green before finishing.
  
@@ -20,7 +27,7 @@ ls Taskfile.yml Taskfile.yaml taskfile.yml taskfile.yaml 2>/dev/null
  
 If a Taskfile exists, read it fully and extract:
 - **Setup tasks**: anything that installs dependencies, copies `.env`, runs migrations, seeds — common names: `setup`, `install`, `init`, `bootstrap`
-- **Check tasks**: anything that runs tests or linters — common names: `test`, `lint`, `analyse`, `check`, `ci`, `pint`, `stan`
+- **Check tasks**: anything that runs tests or linters — common names: `test`, `lint`, `analyse`, `check`, `ci`, `pint`, `stan`; also look for the `composer:run:*` task family (e.g. `composer:run:checkall`, `composer:run:checktype`, `composer:run:test`) — these are the preferred way to run individual tools
 - **Utility tasks**: `key`, `migrate`, `seed`, etc. — useful during environment setup
 List all discovered tasks with their description. **Prefer Task commands over raw vendor/bin calls** when an equivalent Task exists — they often handle the right flags and order automatically.
  
@@ -29,7 +36,7 @@ Check that `task` is installed:
 task --version 2>/dev/null || echo "task not installed"
 ```
  
-If `task` is not installed but a Taskfile is present, fall back to running the underlying commands directly from the Taskfile's task definitions.
+If `task` is not installed, do not attempt to run commands directly. Stop and alert the user — `task` is required. Ask the user to install it first (`brew install go-task/tap/go-task` on macOS).
  
 ### 1b. Scan GitHub workflows
  
@@ -39,9 +46,9 @@ find .github/workflows -name "*.yml" -o -name "*.yaml" 2>/dev/null | head -20
  
 For each workflow file found, read it and extract:
 - **Test jobs**: PHPUnit, Pest, feature tests, unit tests
-- **Static analysis**: PHPStan, Larastan, Psalm
+- **Static analysis**: PHPStan, Larastan
 - **Code style**: Laravel Pint, PHP-CS-Fixer, PHP_CodeSniffer
-- **Other linters**: Blade linters, JS/TS checks, ESLint
+- **Other linters**: JS/TS checks, ESLint
 - **Skippable jobs**: jobs that use secrets, deploy steps, cloud runners (SonarCloud, Codecov uploads, etc.)
 Cross-reference workflow steps against Taskfile tasks — if a workflow step runs `task test`, that maps to the Task you already found.
  
@@ -56,7 +63,13 @@ Before running, verify the environment is ready.
  
 ### 2a. Use Taskfile setup if available
  
-If a setup/install/init task was found in Step 1, run it first — it likely handles everything below automatically:
+Run `task up` first to ensure services are running:
+ 
+```bash
+task up
+```
+ 
+If a setup/install/init task was found in Step 1, run it after — it likely handles dependency installation, `.env` setup, and migrations:
  
 ```bash
 task setup    # or: task install / task init / task bootstrap
@@ -67,45 +80,63 @@ Check if the task succeeded (exit code 0). If it did, skip to Step 2b to verify 
 ### 2b. Verify environment manually
  
 ```bash
-# Check PHP
-php --version
+# Discover available tasks
+task --list
+
+# Check Composer dependencies are installed (file check only — no host commands)
+[ -f vendor/autoload.php ] && echo "vendor: ok" || echo "vendor: MISSING — run a setup task"
  
-# Check Composer dependencies are installed
-[ -f vendor/autoload.php ] && echo "vendor: ok" || echo "vendor: MISSING — run composer install"
- 
-# Check .env exists
+# Check .env exists (file check only)
 [ -f .env ] && echo ".env: ok" || echo ".env: MISSING — copy from .env.example"
- 
-# Check if running in Laravel Sail or local PHP
-[ -f ./vendor/bin/sail ] && echo "Sail available" || echo "Running local PHP"
 ```
  
-If `vendor/` is missing, run `composer install` first.
-If `.env` is missing, copy `.env.example` to `.env` and run `php artisan key:generate`.
+If `vendor/` is missing, look for a setup task (`task setup`, `task composer:install`) and run it. If no such task exists, use the fallback: `task dc:run -- php composer install`.
+
+If `.env` is missing, copy `.env.example` to `.env` manually (file copy, not a host command), then generate the application key: `task artisan:run:key:generate` or fallback `task dc:run -- php artisan key:generate`.
  
-### 2c. Determine runner prefix
- 
-- **Task**: use `task <name>` when a Taskfile task covers the check
-- **Sail**: `./vendor/bin/sail` (use when Docker is running and `APP_SERVICE` is set)
-- **Local**: `php`, `./vendor/bin/...` directly
 ---
  
 ## Step 3: Run checks in order
+
+### Runner prefix
+
+Commands must always be run through the Taskfile. Use this strict order:
+
+1. **Task (preferred):** `task <name>` — check `task --list` first
+2. **Composer/artisan scripts:** `task composer:run:<script>` or `task artisan:run:<command>` — when `task --list` shows `task composer:run:*` or `task artisan:run:*`, the `*` is the script/command name to use
+3. **Raw fallback:** `task dc:run -- php ./vendor/bin/<tool> [args]` — use only when no task exists
+
+Never use `./vendor/bin/...`, `php`, `composer`, or `npm` directly on the host.
+
+### Order of execution
  
 Run in this priority order — stop and fix before moving to the next group.
+
+If `task composer:run:checkall` was found in Step 1, run it now — it covers all composer tools in one go. Skip Steps 3a and 3b.
  
 ### 3a. Code style (fastest, fix automatically)
  
+Always check `task --list` for available tasks first.
+
 ```bash
-# Laravel Pint (auto-fixes)
-./vendor/bin/pint
- 
-# PHP-CS-Fixer (auto-fixes)
-./vendor/bin/php-cs-fixer fix
- 
-# PHP_CodeSniffer (report only — fix with phpcbf)
-./vendor/bin/phpcs
-./vendor/bin/phpcbf   # if phpcs fails
+# Laravel Pint — preferred via task:
+task composer:run:pint
+
+# Laravel Pint — fallback:
+task dc:run -- php ./vendor/bin/pint
+
+# PHP-CS-Fixer — preferred via task:
+task composer:run:fixstyle
+
+# PHP-CS-Fixer — fallback:
+task dc:run -- php ./vendor/bin/php-cs-fixer fix
+
+# PHP_CodeSniffer — preferred via task:
+task composer:run:checkstyle
+
+# PHP_CodeSniffer — fallback:
+task dc:run -- php ./vendor/bin/phpcs
+task dc:run -- php ./vendor/bin/phpcbf   # if phpcs fails
 ```
  
 If Pint or php-cs-fixer auto-fixes files: note which files changed, continue.
@@ -113,34 +144,30 @@ If Pint or php-cs-fixer auto-fixes files: note which files changed, continue.
 ### 3b. Static analysis
  
 ```bash
-# PHPStan / Larastan
-./vendor/bin/phpstan analyse
- 
-# Psalm
-./vendor/bin/psalm
+# PHPStan / Larastan — preferred via task:
+task composer:run:checktype
+
+# PHPStan / Larastan — fallback:
+task dc:run -- php ./vendor/bin/phpstan analyse
 ```
  
 If static analysis fails → go to **Step 4 (Fix loop)**.
  
 ### 3c. Tests
  
-Detect the test runner:
- 
 ```bash
-# Pest (preferred if available)
-[ -f ./vendor/bin/pest ] && ./vendor/bin/pest || ./vendor/bin/phpunit
+# Run tests — preferred via task:
+task composer:run:test
 ```
- 
-Common useful flags:
+
+If no task exists, check which test runner is available: if `vendor/bin/pest` exists, use the Pest fallback; otherwise use the PHPUnit fallback.
+
 ```bash
-# Run with coverage (only if xdebug/pcov available)
-./vendor/bin/pest --coverage
- 
-# Stop on first failure to focus
-./vendor/bin/pest --stop-on-failure
- 
-# Run only the tests related to recently changed files
-./vendor/bin/pest --dirty   # Pest only
+# Pest fallback:
+task dc:run -- php ./vendor/bin/pest
+
+# PHPUnit fallback:
+task dc:run -- php ./vendor/bin/phpunit
 ```
  
 If tests fail → go to **Step 4 (Fix loop)**.
@@ -148,12 +175,17 @@ If tests fail → go to **Step 4 (Fix loop)**.
 ### 3d. Other checks (if present)
  
 ```bash
-# JS/TS (if package.json has test/lint scripts)
-npm run lint
-npm run test
- 
-# Blade linting (if configured)
-./vendor/bin/blade-formatter --check resources/
+# JS/TS lint — preferred via task:
+task npm:run:lint
+
+# JS/TS lint — fallback:
+task dc:run -- php npm run lint
+
+# JS/TS test — preferred via task:
+task npm:run:test
+
+# JS/TS test — fallback:
+task dc:run -- php npm run test
 ```
  
 ---
@@ -204,27 +236,3 @@ When all locally runnable checks are green, confirm:
  
 Ready to commit / push.
 ```
- 
----
- 
-## Common issues and fixes
- 
-| Error | Likely cause | Fix |
-|---|---|---|
-| `Class not found` in tests | Missing `composer dump-autoload` | Run `composer dump-autoload` |
-| DB errors in tests | Test DB not set up | Check `phpunit.xml` for in-memory SQLite or run migrations |
-| PHPStan "not enough types" | Missing `@param`/`@return` or wrong types | Add type hints or docblocks |
-| `Call to undefined method` on mock | Wrong mock setup | Review mock expectations |
-| Pest `--dirty` finds no tests | Not a git repo or no tracked changes | Fall back to `./vendor/bin/pest` |
-| `vendor/bin/sail: not found` | Sail not installed | Use local PHP directly |
-| Port conflict with Sail | Another service on port 80/3306 | `./vendor/bin/sail down` first |
- 
----
- 
-## Notes
- 
-- **Never skip a failing check** — fix it or escalate to the user with a clear explanation of why it can't be fixed automatically.
-- **Auto-fixes (Pint, phpcbf) are always safe to run** — they only touch formatting.
-- **Prefer `--stop-on-failure`** when running Pest to focus on one issue at a time.
-- **SQLite in-memory** is the default test DB for most Specs projects — check `phpunit.xml` or `phpunit.xml.dist`.
-- If a test requires a real DB and none is configured, flag it to the user rather than guessing.
