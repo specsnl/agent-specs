@@ -193,8 +193,18 @@ committed separately per the Commit Strategy):
 
   Pass the following suggested title and body to the `create-pr` skill:
 
-  **Suggested PR title**: `chore: Update dependencies` — the `create-pr` skill will verify the
-  format against `.github/pr-title-checker-config.json` and ask for a ticket number if one is required.
+  **Suggested PR title**: `Update dependencies`.
+
+  This is an automated dependency update with **no associated ticket**. Therefore:
+
+  - Do **not** ask the user for a ticket or issue number — none exists for this work.
+  - The `create-pr` skill verifies the title format against `.github/pr-title-checker-config.json`.
+    Apply whichever format it requires:
+    - If the format requires a ticket prefix (e.g. `KLIN`, `ABC`): use the placeholder issue
+      number `000`, giving `<PREFIX>-000: Update dependencies` (for example `KLIN-000: Update dependencies`).
+      Derive `<PREFIX>` from the checker config's allowed pattern, or from the prefix used by
+      existing branches/PRs in the repository.
+    - If the format requires a conventional-commit prefix instead: use `chore: Update dependencies`.
 
   **Suggested PR body**: Include only the bullets for phases that produced actual changes. If any
   additional side-effect commits were made (e.g. `docs: Updated AGENTS.md`), add them as extra bullets
