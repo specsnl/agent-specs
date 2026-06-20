@@ -91,7 +91,9 @@ EOF
 
 - Match the format discovered in Phase 1
 - If a Linear issue number was provided: `PREFIX-543: description`
-- If no issue number: `PREFIX-000: description`
+- If no issue number is available: fall back to `000` as the issue number, e.g. `PREFIX-000: description`.
+  This is the standard fallback — do **not** ask the user for an issue number when one wasn't provided.
+  Derive `PREFIX` from the title-checker config pattern, or from the prefix used by existing branches/PRs.
 - Never omit the colon and space after the prefix
 
 ### Body rules
