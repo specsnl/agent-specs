@@ -12,7 +12,7 @@ Propagate relevant changes from the current PHP image repository to all sibling 
 its own branch, commit history, and pull request that mirrors the original — adjusted where necessary for PHP version
 differences.
 
-This command must be run from a PHP image repository on a feature branch that has an open pull request. If you are in
+This command must be run from a PHP image repository on a feature branch that has a pull request (any status). If you are in
 the `php85` repository with updates on a branch, run this command to propagate the applicable changes to `php84` and
 `php83`.
 
@@ -27,6 +27,8 @@ If any step fails, STOP immediately and report the error.
     - No unstaged changes
     - No untracked files
     - If not clean: abort and instruct the user to commit or stash all changes first.
+3. Confirm the current branch has a pull request (any status). If none exists, abort and instruct the user to open
+   one first.
 
 ## Phase 2 --- Context Gathering
 
@@ -35,8 +37,8 @@ If any step fails, STOP immediately and report the error.
 2. List all commits on the current branch that are not yet on `main`:
    `git log main..HEAD --oneline`
    For each commit, also retrieve its full diff: `git show <sha>`.
-3. Find the open pull request for the current branch. Record its **title** and **description** — these will be
-   reused verbatim when creating sibling PRs.
+3. Find the pull request for the current branch. Record its **title** — this will be reused verbatim when creating
+   sibling PRs.
 4. Locate the sibling repositories using the PHP images skill. Check locally first (sibling directories alongside
    the current repository). Confirm each sibling by verifying its git remote URL or README. Record the local path
    of every sibling that exists.
