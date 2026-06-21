@@ -70,8 +70,16 @@ Repeat the following steps for each sibling, working through them one sibling at
 7. After applying the changes for each logical commit, verify the result looks correct. Then commit with the exact
    same commit message as the corresponding commit in the source repository.
 8. Push the branch: `git push -u origin <branch-name>`
-9. Create a pull request from `<branch-name>` to `main` using the same title and description as the original pull
-   request.
+9. Create a pull request from `<branch-name>` to `main`. For the PR title, reuse the source PR title verbatim. For
+   the body, do not copy the source PR description verbatim — instead, derive it from the commits that were actually
+   applied to this sibling:
+   - Include one bullet per applied commit, using the commit subject line as the bullet text (reworded to sentence
+     case if needed).
+   - Omit any skipped commits entirely.
+   - If a commit was applied with adjustments (e.g. version strings adapted), include it as-is — the bullet describes
+     intent, not the exact change.
+   The result must accurately reflect what this sibling actually received, even if that differs from the source PR
+   description.
 
 ------------------------------------------------------------------------
 
