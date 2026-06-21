@@ -42,6 +42,10 @@ If any step fails, STOP immediately and report the error.
 4. Locate the sibling repositories using the PHP images skill. Check locally first (sibling directories alongside
    the current repository). Confirm each sibling by verifying its git remote URL or README. Record the local path
    of every sibling that exists.
+5. For every located sibling, check whether its working tree is clean (no staged changes, no unstaged changes, no
+   untracked files). If **any** sibling is dirty, stop immediately, list every dirty sibling and what it has
+   outstanding, and instruct the user to commit or stash those changes before re-running this command. Do not
+   proceed with any sibling until all are clean.
 
 ## Phase 3 --- Change Analysis
 
@@ -61,9 +65,9 @@ order they should be applied (preserve the original commit order).
 Repeat the following steps for each sibling, working through them one sibling at a time:
 
 1. `cd` into the sibling directory.
-2. Ensure the working tree is clean. If not, abort.
-3. Checkout `main`: `git checkout main`
-4. Synchronize with remote: `git fetch --prune && git pull`
+2. Checkout `main`: `git checkout main`
+3. Fetch all remote changes and prune stale tracking branches: `git fetch --prune`
+4. Pull the latest `main` from origin: `git pull origin main`
 5. Create a new branch using the same name as the source branch:
    `git checkout -b <branch-name>`
 6. Apply the relevant changes identified in Phase 3. **Do not use `git cherry-pick`** — manually replicate each
