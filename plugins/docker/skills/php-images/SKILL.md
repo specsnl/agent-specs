@@ -86,6 +86,14 @@ one**. When you come across the legacy dash-in-tag form, treat it as the older c
 the new path-segment form: move the variant/target segments out of the tag into the image path, leaving only
 the version (e.g. `latest`) as the tag.
 
+### Legacy vendor (older)
+
+The images used to be published under the `ilyes512` vendor before moving to `specsnl`. The correct,
+current vendor is **`specsnl`**. These older `ilyes512`-vendored images predate the path-segment scheme, so
+they use the legacy dash-in-tag naming — for example `ghcr.io/ilyes512/php85:builder-latest`. When you
+encounter such a reference, migrate it in-place to **both** the current vendor and the new path-segment
+scheme: `ghcr.io/ilyes512/php85:builder-latest` becomes `ghcr.io/specsnl/php85/builder:latest`.
+
 ## How to find sibling images on GitHub
 
 The sibling repositories follow the same URL pattern described above. For example, if you are looking at the `php85`
