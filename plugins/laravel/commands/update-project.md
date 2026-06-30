@@ -109,6 +109,17 @@ Abort on any failure.
     - `php/Dockerfile`
     - `nginx/Dockerfile`
     - `.github/workflows/*.yml` (e.g. service images like `mysql:`)
+    - **Specsnl PHP base images** (`ghcr.io/specsnl/php<major><minor>...`, typically the `FROM` lines in
+      `php/Dockerfile`) use two naming conventions. The **newer, preferred** convention encodes the variant
+      and build target as path segments, with only the version in the tag:
+      `ghcr.io/specsnl/php<major><minor>[/<variant>][/<target>]:<version>`
+      (e.g. `ghcr.io/specsnl/php85/builder:latest`). The **legacy** convention encoded the variant/target and
+      version together in the tag, joined with dashes:
+      `ghcr.io/specsnl/php<major><minor>:<variant>-<target>-<version>`
+      (e.g. `ghcr.io/specsnl/php85:builder-latest`). If you find a Specsnl image still using the legacy
+      dash-in-tag form, **migrate it in-place to the new path-segment form** — move the variant/target
+      segments out of the tag into the image path, leaving only the version (e.g. `latest`) as the tag. This
+      migration is a change in its own right even when the version (e.g. `latest`) does not change.
 2. For each image found, check for a newer version:
     - For images hosted on `ghcr.io/*`: use the GitHub Releases API to find the latest release tag for that
     repository.

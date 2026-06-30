@@ -46,6 +46,46 @@ The source files for the PHP images can be found in the repositories that follow
 `https://github.com/specsnl/php<major><minor>`. For example, for PHP 8.5, the source files are located in
 `https://github.com/specsnl/php85`.
 
+## How are the published images named and tagged?
+
+The built images are published to the GitHub Container Registry (GHCR). The current (newer) naming scheme
+encodes the variant and build target as path segments under the repository, and uses the tag only for the
+version:
+
+`ghcr.io/specsnl/php<major><minor>[/<variant>][/<target>]:<version>`
+
+- `<variant>`: omitted for the FPM variant; otherwise `apache` or `frankenphp`.
+- `<target>`: omitted for the `runtime` (production) target; otherwise `builder` (adds development tooling
+  such as Composer and Xdebug) or `builder_nodejs` (builder plus Node.js).
+- `<version>`: `latest`, a release tag (e.g. `0.5.5`), `main`, or `pr-<number>`.
+
+Examples for PHP 8.5:
+
+```
+docker pull ghcr.io/specsnl/php85:latest                      # fpm runtime
+docker pull ghcr.io/specsnl/php85/builder:latest              # fpm builder
+docker pull ghcr.io/specsnl/php85/builder_nodejs:latest       # fpm builder + Node.js
+docker pull ghcr.io/specsnl/php85/apache:latest               # apache runtime
+docker pull ghcr.io/specsnl/php85/apache/builder:latest       # apache builder
+docker pull ghcr.io/specsnl/php85/frankenphp:latest           # frankenphp runtime
+docker pull ghcr.io/specsnl/php85/frankenphp/builder:latest   # frankenphp builder
+```
+
+### Legacy naming scheme (older)
+
+Older images encoded the variant/target **and** the version together in the tag, joined with dashes,
+instead of as path segments:
+
+`ghcr.io/specsnl/php<major><minor>:<variant>-<target>-<version>`
+
+For example, the legacy `ghcr.io/specsnl/php85:builder-latest` is equivalent to the new
+`ghcr.io/specsnl/php85/builder:latest`.
+
+Both forms may still be encountered in the wild, but the **path-segment scheme is the newer, preferred
+one**. When you come across the legacy dash-in-tag form, treat it as the older convention and migrate it to
+the new path-segment form: move the variant/target segments out of the tag into the image path, leaving only
+the version (e.g. `latest`) as the tag.
+
 ## How to find sibling images on GitHub
 
 The sibling repositories follow the same URL pattern described above. For example, if you are looking at the `php85`
