@@ -12,7 +12,7 @@ Propagate relevant changes from the current PHP image repository to all sibling 
 its own branch, commit history, and pull request that mirrors the original — adjusted where necessary for PHP version
 differences.
 
-This command must be run from a PHP image repository on a feature branch that has an open pull request. If you are in
+This command must be run from a PHP image repository on a feature branch that has a pull request (any status). If you are in
 the `php85` repository with updates on a branch, run this command to propagate the applicable changes to `php84` and
 `php83`.
 
@@ -27,6 +27,8 @@ If any step fails, STOP immediately and report the error.
     - No unstaged changes
     - No untracked files
     - If not clean: abort and instruct the user to commit or stash all changes first.
+3. Confirm the current branch has a pull request (any status). If none exists, abort and instruct the user to open
+   one first.
 
 ## Phase 2 --- Context Gathering
 
@@ -35,11 +37,15 @@ If any step fails, STOP immediately and report the error.
 2. List all commits on the current branch that are not yet on `main`:
    `git log main..HEAD --oneline`
    For each commit, also retrieve its full diff: `git show <sha>`.
-3. Find the open pull request for the current branch. Record its **title** and **description** — these will be
-   reused verbatim when creating sibling PRs.
+3. Find the pull request for the current branch. Record its **title** — this will be reused verbatim when creating
+   sibling PRs.
 4. Locate the sibling repositories using the PHP images skill. Check locally first (sibling directories alongside
    the current repository). Confirm each sibling by verifying its git remote URL or README. Record the local path
    of every sibling that exists.
+5. For every located sibling, check whether its working tree is clean (no staged changes, no unstaged changes, no
+   untracked files). If **any** sibling is dirty, stop immediately, list every dirty sibling and what it has
+   outstanding, and instruct the user to commit or stash those changes before re-running this command. Do not
+   proceed with any sibling until all are clean.
 
 ## Phase 3 --- Change Analysis
 
@@ -59,9 +65,9 @@ order they should be applied (preserve the original commit order).
 Repeat the following steps for each sibling, working through them one sibling at a time:
 
 1. `cd` into the sibling directory.
-2. Ensure the working tree is clean. If not, abort.
-3. Checkout `main`: `git checkout main`
-4. Synchronize with remote: `git fetch --prune && git pull`
+2. Checkout `main`: `git checkout main`
+3. Fetch all remote changes and prune stale tracking branches: `git fetch --prune`
+4. Pull the latest `main` from origin: `git pull origin main`
 5. Create a new branch using the same name as the source branch:
    `git checkout -b <branch-name>`
 6. Apply the relevant changes identified in Phase 3. **Do not use `git cherry-pick`** — manually replicate each
@@ -70,8 +76,16 @@ Repeat the following steps for each sibling, working through them one sibling at
 7. After applying the changes for each logical commit, verify the result looks correct. Then commit with the exact
    same commit message as the corresponding commit in the source repository.
 8. Push the branch: `git push -u origin <branch-name>`
-9. Create a pull request from `<branch-name>` to `main` using the same title and description as the original pull
-   request.
+9. Create a pull request from `<branch-name>` to `main`. For the PR title, reuse the source PR title verbatim. For
+   the body, do not copy the source PR description verbatim — instead, derive it from the commits that were actually
+   applied to this sibling:
+   - Include one bullet per applied commit, using the commit subject line as the bullet text (reworded to sentence
+     case if needed).
+   - Omit any skipped commits entirely.
+   - If a commit was applied with adjustments (e.g. version strings adapted), include it as-is — the bullet describes
+     intent, not the exact change.
+   The result must accurately reflect what this sibling actually received, even if that differs from the source PR
+   description.
 
 ------------------------------------------------------------------------
 
