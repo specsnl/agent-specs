@@ -80,9 +80,6 @@ git push -u origin HEAD
 gh pr create --title "PREFIX: short description" --body "$(cat <<'EOF'
 ## Summary
 - ...
-
-## Test plan
-- [ ] ...
 EOF
 )"
 ```
@@ -100,7 +97,6 @@ EOF
 
 - Keep it short — a few bullets, no paragraphs
 - `## Summary`: 2–4 short bullets of what changed
-- `## Test plan`: 1–3 checkbox bullets
 - Never mention Claude, AI, or that the work was done in a Claude session
 
 After creating: output the PR URL and the list of CI jobs that will run on it (from Phase 1).
