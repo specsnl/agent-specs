@@ -83,7 +83,43 @@ abort and report the errors.
     (e.g., `docs: Updated AGENTS.md`).
 4. If there are no changes, skip the commit step and move on to the next phase.
 
-## Phase 4 --- NPM package manager version
+## Phase 4 --- Replace Abandoned `ilyes512` Packages
+
+Some Composer packages formerly published under the `ilyes512` vendor namespace have been abandoned
+and superseded by maintained `specsnl` equivalents. This phase migrates any such packages.
+
+1. Inspect the project's `composer.json` (`require` and `require-dev`) for packages under the
+`ilyes512/*` vendor namespace. If there are none, skip this phase entirely.
+2. For each `ilyes512/*` package found, determine its maintained replacement:
+    - The authoritative source is Composer's own abandonment metadata. When Composer resolves an
+    abandoned package (during the `task composer:update` run in Phase 3) it prints a warning such as:
+    `Package ilyes512/foo is abandoned, you should avoid using it. Use specsnl/foo instead.`
+    Use the replacement package named in that warning **verbatim**.
+    - If the abandonment warning does not name an explicit replacement, fall back to a straight
+    vendor-prefix swap: `ilyes512/<name>` → `specsnl/<name>`. Before relying on the fallback, confirm
+    the `specsnl/<name>` package actually exists (e.g. via `task composer:do:outdated` output or the
+    package's Packagist page).
+    - If a package is **not** abandoned, or its abandonment notice points to a replacement **outside**
+    the `specsnl` namespace, do **not** replace it. Leave it in place and note it in your final report.
+3. For each package to migrate, edit `composer.json`: remove the `ilyes512/*` entry and add the
+`specsnl/*` replacement, preserving the existing version constraint. Adjust the constraint only if the
+replacement's available versions require it.
+4. Update the lock file and vendor directory: `task composer:update`.
+5. The replacement package may expose a different PHP namespace or class names than the abandoned one.
+Search the codebase for references to the old package's namespace/classes and update any usages to the
+replacement's API. Then run full backend checks: `task checkall`. If any check fails, attempt to fix
+the issue and re-run `task checkall` to confirm resolution before proceeding (follow the same
+style/PHPStan/PHPUnit fix rules described in Phase 3). If you cannot resolve the failures, abort and
+report the errors.
+6. Check `git status` for all changed files. Stage only files directly related to this migration (e.g.
+`composer.json`, `composer.lock`, `vendor/`, and any source files updated for the new package's API)
+and commit. Commit message: `chore(deps): Replaced abandoned ilyes512 packages with specsnl equivalents`.
+For any remaining unrelated changed files, commit them separately with a descriptive message.
+7. If there are no `ilyes512/*` packages or no changes, skip the commit step and move on to the next phase.
+
+Abort on any failure.
+
+## Phase 5 --- NPM package manager version
 
 1. Update NPM package manager version: `task npm:corepack:update`.
 2. Commit separately if there are any changes. Commit message: `chore(npm): Updated NPM package manager version`.
@@ -91,7 +127,7 @@ abort and report the errors.
 
 Abort on any failure.
 
-## Phase 5 --- Frontend Dependencies
+## Phase 6 --- Frontend Dependencies
 
 1. Update NPM dependencies: `task npm:update`.
 2. Build assets: `task npm:run:build`.
@@ -102,7 +138,7 @@ dependencies`. For any remaining unrelated changed files, commit them separately
 
 Abort on any failure.
 
-## Phase 6 --- Docker Image Updates
+## Phase 7 --- Docker Image Updates
 
 1. Scan the following files for pinned Docker image references:
     - `compose.yml`
@@ -146,7 +182,7 @@ with a descriptive message.
 
 Abort on any failure.
 
-## Phase 7 --- GitHub Actions Updates
+## Phase 8 --- GitHub Actions Updates
 
 1. Scan the following files for pinned `uses:` action references:
     - `.github/workflows/*.yml`
@@ -169,9 +205,9 @@ with a descriptive message.
 
 Abort on any failure.
 
-## Phase 8 --- Final Checks
+## Phase 9 --- Final Checks
 
-Phase 8 is informational only — findings here do not block the PR. Create the PR first (see Final
+Phase 9 is informational only — findings here do not block the PR. Create the PR first (see Final
 State below), then report the Phase 8 summary to the user.
 
 1. Run the following audit commands and create a summary of the results. Suggest to the user to fix any of the issues
@@ -187,13 +223,14 @@ dependencies. If there are any, create a summary and suggest to the user to upda
 
 Abort if there are no changes after all update steps, and inform the user that dependencies are already up to date.
 
-- There could be up to 5 commits on the `vendor-updates` branch (more if unrelated side-effect changes were
+- There could be up to 6 commits on the `vendor-updates` branch (more if unrelated side-effect changes were
 committed separately per the Commit Strategy):
     1. Composer updates
-    2. NPM package manager version update
-    3. NPM dependency updates
-    4. Docker image version updates
-    5. GitHub Actions version updates
+    2. Replaced abandoned `ilyes512` packages with `specsnl` equivalents
+    3. NPM package manager version update
+    4. NPM dependency updates
+    5. Docker image version updates
+    6. GitHub Actions version updates
 - Branch: `vendor-updates`
 - Based on the chosen source from step 4 (latest `origin/main` by default, or local `main` if selected).
 - The working tree should be clean.
@@ -223,6 +260,7 @@ committed separately per the Commit Strategy):
   ```md
   ## Summary
   - Updated Composer dependencies
+  - Replaced abandoned `ilyes512` packages with `specsnl` equivalents
   - Updated NPM package manager version
   - Updated NPM dependencies
   - Updated Docker image versions
