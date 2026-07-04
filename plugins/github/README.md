@@ -4,8 +4,7 @@ All Specs GitHub related skills, instructions, commands/prompts are located in t
 
 ## Installation
 
-Claude: `claude plugin install github@specs`  
-Copilot: `copilot plugin install github@specs`  
+Claude: `claude plugin install github@specs`
 
 ## Skills
 

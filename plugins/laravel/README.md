@@ -4,8 +4,7 @@ All Specs Laravel related skills, instructions, commands/prompts are located in 
 
 ## Installation
 
-Claude: `claude plugin install laravel@specs`  
-Copilot: `copilot plugin install laravel@specs`  
+Claude: `claude plugin install laravel@specs`
 
 ## Skills
 
@@ -41,5 +40,4 @@ job recipe, and Filament-specific selector conventions.
 **update-project**:  
 Update dependencies of Specs projects based on Laravel using isolated commits.
 
-Claude: `/update-project`  
-Copilot: `/laravel:update-project`
+Claude: `/update-project`

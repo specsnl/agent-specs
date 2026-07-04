@@ -4,8 +4,7 @@ All Specs Docker related skills, instructions, commands/prompts are located in t
 
 ## Installation
 
-Claude: `claude plugin install docker@specs`  
-Copilot: `copilot plugin install docker@specs`  
+Claude: `claude plugin install docker@specs`
 
 ## Skills
 
@@ -18,11 +17,9 @@ which PHP versions are maintained, and how to locate sibling images on GitHub an
 **update-php-images**:  
 Update Specsnl PHP images (the Dockerfile dependencies and tooling) in isolated commits
 
-Claude: `/update-php-images`  
-Copilot: `/docker:update-php-images`
+Claude: `/update-php-images`
 
 **sync-sibling-php-repos**:  
 Synchronize sibling PHP repositories by propagating relevant commits from the current repository.
 
-Claude: `/sync-sibling-php-repos`  
-Copilot: `/docker:sync-sibling-php-repos`
+Claude: `/sync-sibling-php-repos`

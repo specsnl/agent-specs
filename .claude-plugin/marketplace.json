@@ -11,22 +11,22 @@
         {
             "name": "laravel",
             "source": "./plugins/laravel",
-            "version": "0.0.17"
+            "version": "0.0.18"
         },
         {
             "name": "docker",
             "source": "./plugins/docker",
-            "version": "0.0.5"
+            "version": "0.0.6"
         },
         {
             "name": "linear",
             "source": "./plugins/linear",
-            "version": "0.0.3"
+            "version": "0.0.4"
         },
         {
             "name": "github",
             "source": "./plugins/github",
-            "version": "0.0.5"
+            "version": "0.0.6"
         },
         {
             "name": "crit",
