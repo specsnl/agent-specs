@@ -4,8 +4,7 @@ All Specs Linear related skills, instructions, commands/prompts are located in t
 
 ## Installation
 
-Claude: `claude plugin install linear@specs`  
-Copilot: `copilot plugin install linear@specs`  
+Claude: `claude plugin install linear@specs`
 
 ## Skills
 
