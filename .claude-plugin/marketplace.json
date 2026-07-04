@@ -27,6 +27,14 @@
             "name": "github",
             "source": "./plugins/github",
             "version": "0.0.5"
+        },
+        {
+            "name": "crit",
+            "source": {
+                "source": "github",
+                "repo": "tomasz-tomczyk/crit"
+            },
+            "description": "Review and comment on plans, code diffs, and frontend elements, then send feedback directly to your agent."
         }
     ]
 }
