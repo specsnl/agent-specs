@@ -11,22 +11,26 @@
         {
             "name": "laravel",
             "source": "./plugins/laravel",
-            "version": "0.0.19"
+            "version": "0.0.19",
+            "description": "A Specs Laravel specific plugin"
         },
         {
             "name": "docker",
             "source": "./plugins/docker",
-            "version": "0.0.7"
+            "version": "0.0.7",
+            "description": "A Specs Docker specific plugin"
         },
         {
             "name": "linear",
             "source": "./plugins/linear",
-            "version": "0.0.4"
+            "version": "0.0.4",
+            "description": "A Specs plugin for creating Linear issues from raw client input"
         },
         {
             "name": "github",
             "source": "./plugins/github",
-            "version": "0.0.6"
+            "version": "0.0.6",
+            "description": "A GitHub-specific plugin for Specs"
         },
         {
             "name": "crit",

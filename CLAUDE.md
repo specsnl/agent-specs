@@ -20,6 +20,14 @@ The root `README.md` plugins table must list every plugin declared in
 renamed in the marketplace manifest, update the root `README.md` table to
 match.
 
+## Keep plugin descriptions in sync
+
+Each plugin declares its `description` in two places: its own
+`plugin.json` (or `.claude-plugin/plugin.json`) and its entry in the root
+`.claude-plugin/marketplace.json`. The CLI reads the description from
+`marketplace.json`, so both must always carry the same text. Whenever you
+change a plugin's description, update it in both files.
+
 ## Formatting tables
 
 After editing any markdown table in this repo, use the
