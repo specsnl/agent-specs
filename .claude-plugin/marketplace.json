@@ -21,12 +21,12 @@
         {
             "name": "linear",
             "source": "./plugins/linear",
-            "version": "0.0.5"
+            "version": "0.0.4"
         },
         {
             "name": "github",
             "source": "./plugins/github",
-            "version": "0.0.7"
+            "version": "0.0.6"
         },
         {
             "name": "crit",
@@ -36,15 +36,6 @@
                 "path": "integrations/claude-code"
             },
             "description": "Review and comment on plans, code diffs, and frontend elements, then send feedback directly to your agent."
-        },
-        {
-            "name": "context7",
-            "source": {
-                "source": "git-subdir",
-                "url": "https://github.com/anthropics/claude-plugins-public.git",
-                "path": "external_plugins/context7"
-            },
-            "description": "Upstash Context7 MCP server for up-to-date documentation lookup. Pull version-specific documentation and code examples directly from source repositories into your LLM context."
         }
     ]
 }

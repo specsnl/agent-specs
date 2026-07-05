@@ -8,11 +8,5 @@
     },
     "repository": "specsnl/agent-specs",
     "license": "MIT",
-    "keywords": ["github", "pull-request", "ci", "specs", "plugin"],
-    "mcpServers": {
-        "github": {
-            "type": "http",
-            "url": "https://api.githubcopilot.com/mcp/"
-        }
-    }
+    "keywords": ["github", "pull-request", "ci", "specs", "plugin"]
 }

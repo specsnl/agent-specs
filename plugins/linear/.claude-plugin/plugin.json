@@ -8,11 +8,5 @@
     },
     "repository": "specsnl/agent-specs",
     "license": "MIT",
-    "keywords": ["linear", "intake", "specs", "plugin"],
-    "mcpServers": {
-        "linear": {
-            "type": "http",
-            "url": "https://mcp.linear.app/mcp"
-        }
-    }
+    "keywords": ["linear", "intake", "specs", "plugin"]
 }
