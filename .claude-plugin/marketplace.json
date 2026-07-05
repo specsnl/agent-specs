@@ -11,12 +11,12 @@
         {
             "name": "laravel",
             "source": "./plugins/laravel",
-            "version": "0.0.18"
+            "version": "0.0.19"
         },
         {
             "name": "docker",
             "source": "./plugins/docker",
-            "version": "0.0.6"
+            "version": "0.0.7"
         },
         {
             "name": "linear",

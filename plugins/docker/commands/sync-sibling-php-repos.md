@@ -93,7 +93,7 @@ Repeat the following steps for each sibling, working through them one sibling at
 
 After processing all siblings, provide a summary table listing:
 
-| Sibling repository | Branch created   | Pull request URL | Skipped commits (reason)  |
-|--------------------|------------------|------------------|---------------------------|
-| `php84`            | `<branch-name>`  | `<PR URL>`       | e.g., none                |
-| `php83`            | `<branch-name>`  | `<PR URL>`       | e.g., `abc1234` (PHP 8.5+ only) |
+| Sibling repository | Branch created  | Pull request URL | Skipped commits (reason)        |
+|--------------------|-----------------|------------------|---------------------------------|
+| `php84`            | `<branch-name>` | `<PR URL>`       | e.g., none                      |
+| `php83`            | `<branch-name>` | `<PR URL>`       | e.g., `abc1234` (PHP 8.5+ only) |
