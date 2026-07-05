@@ -21,12 +21,12 @@
         {
             "name": "linear",
             "source": "./plugins/linear",
-            "version": "0.0.4"
+            "version": "0.0.5"
         },
         {
             "name": "github",
             "source": "./plugins/github",
-            "version": "0.0.6"
+            "version": "0.0.7"
         },
         {
             "name": "crit",
