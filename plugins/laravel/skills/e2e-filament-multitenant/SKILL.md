@@ -114,12 +114,12 @@ For **every role**, cover four categories. Add npm scripts:
 `test:e2e:install` (`playwright install --with-deps chromium`), `test:e2e`,
 `test:e2e:ui`, `test:e2e:headed`, `test:e2e:debug`, `test:e2e:report`, `test:e2e:codegen`.
 
-| Category | What to assert |
-|---|---|
-| **HP** Happy-path CRUD | Create/edit/view each resource the role may manage; assert the row/toast appears. |
-| **WF** State workflows | One isolated test per transition action — load a record already in the required state, click the action (handle confirm/form modals), assert the **exact notification title** + the new state badge. Required-comment forms ⇒ also assert empty submit is blocked. |
-| **NEG** Permission boundaries | For things the role must NOT do, assert the nav item / create button / header action is **absent** (`toHaveCount(0)`), not merely hidden. |
-| **ISO** Tenant isolation | Deep-link to another tenant's URL and a record the role shouldn't see ⇒ assert 403/redirect. Plus: logging in with a workspace the user isn't a member of ⇒ assert the membership error. |
+| Category                      | What to assert                                                                                                                                                                                                                                                     |
+|-------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **HP** Happy-path CRUD        | Create/edit/view each resource the role may manage; assert the row/toast appears.                                                                                                                                                                                  |
+| **WF** State workflows        | One isolated test per transition action — load a record already in the required state, click the action (handle confirm/form modals), assert the **exact notification title** + the new state badge. Required-comment forms ⇒ also assert empty submit is blocked. |
+| **NEG** Permission boundaries | For things the role must NOT do, assert the nav item / create button / header action is **absent** (`toHaveCount(0)`), not merely hidden.                                                                                                                          |
+| **ISO** Tenant isolation      | Deep-link to another tenant's URL and a record the role shouldn't see ⇒ assert 403/redirect. Plus: logging in with a workspace the user isn't a member of ⇒ assert the membership error.                                                                           |
 
 Roles that share a panel but differ in scope (e.g. a "super" variant with `view-any`):
 reuse the spec and branch extra assertions on `test.info().project.name`.
