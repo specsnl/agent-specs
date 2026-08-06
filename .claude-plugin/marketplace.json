@@ -40,6 +40,15 @@
                 "path": "integrations/claude-code"
             },
             "description": "Review and comment on plans, code diffs, and frontend elements, then send feedback directly to your agent."
+        },
+        {
+            "name": "git-workflow",
+            "source": {
+                "source": "git-subdir",
+                "url": "https://github.com/paulinevos/claude-stuff.git",
+                "path": "plugins/git-workflow"
+            },
+            "description": "Atomic-commit Git workflow skills: folding changes into the right commit (amend/edit/fixup), conflict resolution, reflog-based undo, and bisect debugging, plus shared conventions (rebase-over-merge, stashing, commit-message style)."
         }
     ]
 }
