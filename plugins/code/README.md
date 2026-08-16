@@ -19,5 +19,6 @@ rules, and a pre-finish sweep of the diff. Local convention in the file always w
 
 **autofix-markdown-tables**:  
 Automatically detect and fix misaligned markdown tables across all `.md` files in the project.
-Runs `markdown-table-formatter` via Docker and rewrites tables in-place. Always review the diff
-afterwards to confirm only whitespace/padding changed — no content should be altered.
+Prefers the project's own `task md:fix-tables` / `task md:fixstyle`, and falls back to running
+`markdown-table-formatter` via Docker when there is no Taskfile. Always review the diff afterwards
+to confirm only whitespace/padding changed — no content should be altered.
