@@ -20,9 +20,10 @@ PHP/Laravel layer of the `ci-green-check` skill in the `github` plugin, which ow
 the fix loop, and the final report.
 
 **fix-translations**:  
-Find, fix, or translate source-language values in translation files. Scans all translation files
-for untranslated values, translates them to the target language, fixes errors and typos, commits
-the changes, and opens a PR.
+Find, fix, or translate source-language values in the Laravel translation files (`lang/<locale>/*.php`
+and `lang/<locale>.json`). Scans them for untranslated values, translates them to the target
+language, fixes errors and typos, commits the changes, and opens a PR — preserving `|` plural
+syntax, `:placeholder` tokens, Blade fragments, and array/JSON keys.
 
 **e2e-filament-multitenant**:  
 Write, expand, or structure Playwright end-to-end tests for a Laravel + Filament
