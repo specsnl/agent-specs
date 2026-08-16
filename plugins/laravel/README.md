@@ -13,20 +13,18 @@ REQUIRED: Execute this skill before running ANY project commands (composer, npm,
 This ensures all commands run safely through the Taskfile. Do not run docker compose, npm, php,
 or composer directly on the host.
 
-**ci-green-check**:  
-After every code change, discover and run all CI checks found in `.github/` locally before finishing.
-Reads `.github/workflows` to find all checks, runs everything that can be run locally (tests, linters,
-static analysis), attempts to auto-fix failures, and reports checks that require cloud/secrets.
-
-**autofix-markdown-tables**:  
-Automatically detect and fix misaligned markdown tables across all `.md` files in the project.
-Runs `markdown-table-formatter` via Docker and rewrites tables in-place. Always review the diff
-afterwards to confirm only whitespace/padding changed — no content should be altered.
+**php-checks**:  
+Prepare the environment (`task up`) and run the PHP/Laravel quality tools locally through the
+Taskfile — `task checkall`, or the individual `composer:script:*` tools (PHP_CodeSniffer,
+PHPStan/Larastan, PHPUnit, Rector), the dependency audits and the markdown linter. This is the
+PHP/Laravel layer of the `ci-green-check` skill in the `github` plugin, which owns check discovery,
+the fix loop, and the final report.
 
 **fix-translations**:  
-Find, fix, or translate source-language values in translation files. Scans all translation files
-for untranslated values, translates them to the target language, fixes errors and typos, commits
-the changes, and opens a PR.
+Find, fix, or translate source-language values in the Laravel translation files (`lang/<locale>/*.php`
+and `lang/<locale>.json`). Scans them for untranslated values, translates them to the target
+language, fixes errors and typos, commits the changes, and opens a PR — preserving `|` plural
+syntax, `:placeholder` tokens, Blade fragments, and array/JSON keys.
 
 **e2e-filament-multitenant**:  
 Write, expand, or structure Playwright end-to-end tests for a Laravel + Filament

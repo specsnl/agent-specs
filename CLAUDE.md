@@ -31,5 +31,5 @@ change a plugin's description, update it in both files.
 ## Formatting tables
 
 After editing any markdown table in this repo, use the
-`laravel:autofix-markdown-tables` skill to keep columns properly padded and
+`code:autofix-markdown-tables` skill to keep columns properly padded and
 aligned.

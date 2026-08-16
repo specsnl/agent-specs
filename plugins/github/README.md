@@ -8,6 +8,13 @@ Claude: `claude plugin install github@specs`
 
 ## Skills
 
+**ci-green-check**:  
+After every code change, discover and run all CI checks found in `.github/` locally before finishing.
+Reads the Taskfile and `.github/workflows` to find all checks, runs everything that can be run
+locally (tests, linters, static analysis), attempts to auto-fix failures, and reports checks that
+require cloud/secrets. In PHP/Laravel repositories it hands the concrete commands off to the
+`php-checks` skill from the `laravel` plugin.
+
 **create-pr**:  
 Audit `.github/workflows/` to understand what CI will run, check the PR title format requirement,
 run CI checks locally (via `ci-green-check` where available), then create the PR with the correct

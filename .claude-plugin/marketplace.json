@@ -11,7 +11,7 @@
         {
             "name": "laravel",
             "source": "./plugins/laravel",
-            "version": "0.0.19",
+            "version": "0.0.20",
             "description": "A Specs Laravel specific plugin"
         },
         {
@@ -29,13 +29,13 @@
         {
             "name": "code",
             "source": "./plugins/code",
-            "version": "0.0.3",
+            "version": "0.0.4",
             "description": "A Specs plugin with cross-language code authoring conventions"
         },
         {
             "name": "github",
             "source": "./plugins/github",
-            "version": "0.0.8",
+            "version": "0.0.9",
             "description": "A GitHub-specific plugin for Specs"
         },
         {

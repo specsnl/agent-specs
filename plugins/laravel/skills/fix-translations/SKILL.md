@@ -1,17 +1,21 @@
 ---
 name: fix-translations
 description: |
-    Use this skill to find, fix, or translate source-language values in translation files. Scans all translation files for untranslated values, translates them to the target language, fixes errors and typos, commits the changes, and opens a PR.
+    Use this skill to find, fix, or translate source-language values in the Laravel translation files of a project — the PHP arrays under `lang/<locale>/` and the JSON catalogues `lang/<locale>.json`. Scans them for untranslated values, translates them to the target language, fixes errors and typos, commits the changes, and opens a PR. Laravel-specific: it preserves `|` plural syntax, `:placeholder` tokens and Blade fragments, and never translates array keys or JSON source keys.
 ---
 
-# Fix {{TARGET_LANGUAGE}} Translations — {{REPOSITORY}}
+# Fix {{TARGET_LANGUAGE}} Laravel Translations — {{REPOSITORY}}
 
-Scan all {{TARGET_LANGUAGE}} translation files for values still in the source language, translate them, fix errors and typos, commit the changes, and open a PR.
+Scan all {{TARGET_LANGUAGE}} Laravel translation files for values still in the source language,
+translate them, fix errors and typos, commit the changes, and open a PR.
 
 ## Fixed context
 
 - **Repository**: `{{REPOSITORY}}`
 - **Translation files**: {{TRANSLATION_FILES_INLINE}}
+  — when not specified, default to Laravel's conventional locations:
+  `lang/{{TARGET_LOCALE}}/**/*.php` and `lang/{{TARGET_LOCALE}}.json`
+  (older projects: `resources/lang/...`)
 - **PR title format**: `{{PR_TITLE_PREFIX}}: <short description>`
 
 ---
@@ -22,7 +26,10 @@ Execute these phases in order.
 
 ### Phase 1 — Scan for untranslated values
 
-Read every file matching {{TRANSLATION_FILES_SCAN}}. For each file, identify values that are still in the source language. A value needs translation if it:
+Read every file matching {{TRANSLATION_FILES_SCAN}} — when that is not supplied, scan
+`lang/{{TARGET_LOCALE}}/**/*.php` and `lang/{{TARGET_LOCALE}}.json` (fall back to
+`resources/lang/...` on older Laravel versions). For each file, identify values that are still in
+the source language. A value needs translation if it:
 
 - Uses source-language words as the primary language (e.g. "Save", "Cancel", "Overview")
 - Contains a full source-language sentence or phrase
@@ -30,7 +37,8 @@ Read every file matching {{TRANSLATION_FILES_SCAN}}. For each file, identify val
 - Contains a typo that is clearly not {{TARGET_LANGUAGE}}
 
 Do **not** flag:
-- Keys (array keys are in the source language by convention)
+- Keys (array keys are in the source language by convention). In JSON catalogues the key *is* the
+  source string — translate the value, leave the key byte-for-byte untouched.
 - Technical/universal strings like email addresses, URLs, currency symbols
 - Values that are intentionally the same in both languages (e.g. `'Logo'`, `'URL'`)
 - Placeholder variables like `:count`, `:name`
@@ -42,6 +50,10 @@ For each identified value, produce the correct {{TARGET_LANGUAGE}} translation. 
 - Translate naturally — not word-for-word. Use the tone of the surrounding context.
 - {{FORMALITY_NOTE}}
 - Plural forms using Laravel's `|` syntax must be preserved: `'{\1'}in :count day|[2,*]in :count days'` → translate each segment, keep the `|` syntax intact.
+- Never rename or translate `:placeholder` tokens (`:count`, `:name`, `:Name`, `:NAME`) — the casing
+  carries Laravel's capitalisation behaviour, so copy them through verbatim.
+- Leave Blade and HTML fragments inside a value alone (`{{ $var }}`, `@lang(...)`, `<a href="...">`)
+  — translate only the surrounding prose.
 - Fix typos
 - Fix wrong translations
 - Fix mixed-language values
@@ -58,7 +70,9 @@ Translate remaining source-language strings in {{TARGET_LANGUAGE}} translation f
 
 ### Phase 4 — Create PR
 
-Invoke the `create-pr` skill to push the branch and open the PR.
+Invoke the `create-pr` skill to push the branch and open the PR. It runs `ci-green-check`, which
+hands off to `php-checks` for this project's PHP tooling — translation files are checked by
+`composer:script:checkstyle` (phpcs) too, so let that run rather than skipping it.
 
 Provide the following title and body:
 

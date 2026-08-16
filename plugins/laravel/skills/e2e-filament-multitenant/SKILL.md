@@ -128,19 +128,24 @@ reuse the spec and branch extra assertions on `test.info().project.name`.
 
 ## Phase 4 — CI job
 
-Add a job to the existing CI workflow (reuse the repo's PHP/Node setup actions and DB
-service). Steps:
+Specs projects run E2E through Docker and Task, against the real stack — not `artisan serve`. Add a
+job to the existing CI workflow that mirrors `.taskfiles/Taskfile.e2e.yml`:
 
-1. Build assets (Vite) — Filament won't render without them.
-2. `php artisan key:generate` + `php artisan migrate:fresh --seed` (including `E2eSeeder`).
-3. `npx playwright install --with-deps chromium` (cache `~/.cache/ms-playwright` keyed on the Playwright version).
-4. Boot the app: `php artisan serve --host=127.0.0.1 --port=8000 &` then `npx wait-on http://127.0.0.1:8000/<login-path>`.
-5. `npx playwright test` with `APP_URL=http://127.0.0.1:8000`.
-6. Upload `playwright-report` always; upload traces on failure.
+1. Install Task (`go-task/setup-task`), create `auth.json` from `COMPOSER_AUTH_JSON`, warm the npm
+   cache with `actions/setup-node`.
+2. `task ci:up` — the CI variant of `task up`: env files, `composer:install`, `npm:install`, compose
+   up, `key:generate`, `storage:link`, wait for the DB, `db:migrate-fresh:local`, `npm:script:build`.
+   Filament won't render without that asset build.
+3. Seed the deterministic fixture:
+   `task 'artisan:run:db:seed' -- --class='Database\Seeders\E2ETestSeeder'`.
+4. `task e2e:docker:test` — runs `npm run test:e2e` inside the `e2e-playwright` compose service, so
+   the browsers come from the image and need no `playwright install` step.
+5. Upload `playwright-report/` with `if: always()`; upload traces on failure.
 
-Start with `--workers=1` for determinism; raise once the data strategy is proven
-parallel-safe. (If the project runs under Docker/Task, a `mcr.microsoft.com/playwright`
-compose service + a `Taskfile.e2e.yml` wrapper is a clean alternative to bare npm scripts.)
+Locally: `task e2e:setup` once for host browsers, then `task e2e:test` (UI) or
+`task e2e:test:headless`; `task e2e:docker:test` reproduces CI exactly.
+
+Start with `--workers=1` for determinism; raise once the data strategy is proven parallel-safe.
 
 ---
 
@@ -158,7 +163,7 @@ compose service + a `Taskfile.e2e.yml` wrapper is a clean alternative to bare np
 ## Done criteria
 
 - Every role has HP + WF + NEG + ISO specs; all role projects green locally
-  (`npm run test:e2e`) and in CI.
+  (`task e2e:test:headless`) and in CI (`task e2e:docker:test`).
 - No false-positive smoke tests against empty lists — workflow/boundary tests run
   against seeded data.
 - The coverage matrix from Phase 3 is filled in for each role, with permission
