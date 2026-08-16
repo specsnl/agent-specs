@@ -40,9 +40,11 @@ for plugin_name in $plugins_to_bump; do
   current=$(jq --raw-output --arg n "$plugin_name" '.plugins[] | select(.name==$n) | .version' "$MARKETPLACE_FILE")
   [ -z "$current" ] && continue
 
-  # Skip if already bumped
+  # Skip if already bumped, or if the plugin is new since the base commit (its
+  # initial version is the release version — nothing to bump yet)
   base=$(echo "$base_versions" | jq --raw-output --arg n "$plugin_name" '.[$n] // ""')
-  [ -n "$base" ] && [ "$current" != "$base" ] && continue
+  [ -z "$base" ] && continue
+  [ "$current" != "$base" ] && continue
 
   IFS='.' read -r maj min patch <<< "$current"
   new="$maj.$min.$((patch + 1))"
