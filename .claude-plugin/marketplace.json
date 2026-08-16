@@ -29,7 +29,7 @@
         {
             "name": "code",
             "source": "./plugins/code",
-            "version": "0.0.2",
+            "version": "0.0.3",
             "description": "A Specs plugin with cross-language code authoring conventions"
         },
         {
