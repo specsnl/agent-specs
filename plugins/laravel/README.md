@@ -18,11 +18,6 @@ After every code change, discover and run all CI checks found in `.github/` loca
 Reads `.github/workflows` to find all checks, runs everything that can be run locally (tests, linters,
 static analysis), attempts to auto-fix failures, and reports checks that require cloud/secrets.
 
-**autofix-markdown-tables**:  
-Automatically detect and fix misaligned markdown tables across all `.md` files in the project.
-Runs `markdown-table-formatter` via Docker and rewrites tables in-place. Always review the diff
-afterwards to confirm only whitespace/padding changed — no content should be altered.
-
 **fix-translations**:  
 Find, fix, or translate source-language values in translation files. Scans all translation files
 for untranslated values, translates them to the target language, fixes errors and typos, commits

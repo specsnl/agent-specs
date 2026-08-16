@@ -16,3 +16,8 @@ Covers the short allowlist (why-not-what, workarounds, non-obvious consequences,
 public API contracts, agreed TODOs), the ban list (restating the code, section banners, redundant
 docblocks, diff/session narration, commented-out code, comments compensating for a bad name), style
 rules, and a pre-finish sweep of the diff. Local convention in the file always wins.
+
+**autofix-markdown-tables**:  
+Automatically detect and fix misaligned markdown tables across all `.md` files in the project.
+Runs `markdown-table-formatter` via Docker and rewrites tables in-place. Always review the diff
+afterwards to confirm only whitespace/padding changed — no content should be altered.
