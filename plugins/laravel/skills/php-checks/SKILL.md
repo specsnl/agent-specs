@@ -2,11 +2,11 @@
 name: php-checks
 description: >
   Use this skill to prepare the environment and run the PHP/Laravel quality tools of a Specs project
-  locally — Pint, PHP-CS-Fixer, PHP_CodeSniffer, PHPStan/Larastan, Pest/PHPUnit and the `npm:run:*`
-  tasks — all through the Taskfile. It is the PHP/Laravel layer of the `ci-green-check` skill, which
-  invokes it whenever a repository has a `composer.json`; that skill owns check discovery, the fix
-  loop, and the final report. Also triggers directly when the user says "run pint", "run phpstan",
-  "run the tests" or "run the composer checks" in a Laravel/PHP repository.
+  locally — PHP_CodeSniffer, PHPStan/Larastan, PHPUnit, Rector and the markdown linter — all through
+  the Taskfile. It is the PHP/Laravel layer of the `ci-green-check` skill, which invokes it whenever
+  a repository has a `composer.json`; that skill owns check discovery, the fix loop, and the final
+  report. Also triggers directly when the user says "run checkall", "run phpstan", "run phpcs" or
+  "run the tests" in a Laravel/PHP repository.
 ---
 
 # PHP / Laravel checks
@@ -14,11 +14,7 @@ description: >
 > **Prerequisite — Command execution rules apply.**
 > The `executing-commands` skill governs how every command in this skill must be run.
 > Never run `php`, `composer`, `npm`, `node`, `docker`, or `docker compose` directly on the host.
-> Always use `task <task-name>`. If no task exists, use `task dc:run -- php <command>` as a fallback.
-> When `task --list` shows a task with `*` (e.g. `task composer:run:*` or `task artisan:run:*`), the
-> `*` is a placeholder — replace it with the composer script or artisan command name. Extra
-> arguments go after `--` (e.g. `task composer:run:audit -- --strict`).
-> Run `task --list` to discover available tasks before reaching for a raw command.
+> Always use `task <task-name>`; run `task --list` first to see what this project actually exposes.
 
 This skill is the stack-specific half of `ci-green-check`. That skill discovers which checks exist
 (Taskfile + `.github/workflows`), drives the fix loop and writes the final report. This one provides
@@ -33,145 +29,120 @@ task --version 2>/dev/null || echo "task not installed"
 If `task` is not installed, do not attempt to run commands directly. Stop and alert the user — `task`
 is required. Ask the user to install it first (`brew install go-task/tap/go-task` on macOS).
 
-Relevant task families to look for in `task --list`: `composer:run:*` (e.g. `composer:run:checkall`,
-`composer:run:checktype`, `composer:run:test`), `artisan:run:*`, `npm:run:*`, and the plain
-`test` / `lint` / `analyse` / `pint` / `stan` tasks.
+## Task naming in Specs Laravel projects
+
+The Taskfile is split into namespaces (`composer`, `artisan`, `npm`, `db`, `md`, `setup`, `e2e`,
+`cleanup`, `worktrees`). Wildcard tasks take the rest of the name as their argument, and everything
+after `--` is forwarded to the underlying command:
+
+| Task                          | Runs                                                                                          |
+|-------------------------------|-----------------------------------------------------------------------------------------------|
+| `task composer:script:<name>` | a composer **script** from `composer.json` (`checkall`, `checkstyle`, `checktype`, `test`, …) |
+| `task composer:cmd:<name>`    | a raw **composer command** (`outdated`, `audit`, `why`, …)                                    |
+| `task composer:install`       | `composer install` inside the `php` service                                                   |
+| `task composer:update`        | `composer update --with-all-dependencies`                                                     |
+| `task artisan:run:<command>`  | `php artisan <command>` (colons included: `artisan:run:migrate:fresh`)                        |
+| `task npm:script:<name>`      | an npm **script** from `package.json` (`build`, `test:e2e`, …)                                |
+| `task npm:cmd:<name>`         | a raw **npm command** (`audit`, `outdated`, …)                                                |
+| `task md:checkstyle`          | markdownlint over the repo                                                                    |
+| `task md:fixstyle`            | fix table spacing, then markdownlint `--fix`                                                  |
+| `task checkall`               | `composer:script:checkall` + `md:checkstyle`                                                  |
+| `task dc:run:<service> -- …`  | last-resort escape hatch into a compose service                                               |
+
+Older projects may still use the previous `composer:run:*` / `npm:run:*` / `composer:do:*` naming.
+**Always confirm against `task --list` before running anything** and use whatever that project
+exposes.
 
 ---
 
 ## Step 1: Prepare the environment
 
-### 1a. Use Taskfile setup if available
-
-Run `task up` first to ensure services are running:
-
 ```bash
 task up
 ```
 
-If a setup/install/init task exists, run it after — it likely handles dependency installation, `.env`
-setup, and migrations:
+`task up` templates `.env` / `.env.testing`, runs the one-time `setup` (auth.json, build, composer
+and npm install, `key:generate`, `storage:link`, fresh migrations for `local` and `testing`, asset
+build) when the project has never been started, and brings the containers up. It is idempotent — run
+it rather than reproducing those steps by hand.
+
+If dependencies drifted after a pull (new migrations, changed lock files), run:
 
 ```bash
-task setup    # or: task install / task init / task bootstrap
+task refresh
 ```
 
-Check if the task succeeded (exit code 0). If it did, skip to Step 1b to verify the result. If no
-setup task exists or it fails, do the steps below manually.
-
-### 1b. Verify the environment manually
+Verify with file checks only — never host commands:
 
 ```bash
-# Discover available tasks
-task --list
-
-# Check Composer dependencies are installed (file check only — no host commands)
-[ -f vendor/autoload.php ] && echo "vendor: ok" || echo "vendor: MISSING — run a setup task"
-
-# Check .env exists (file check only)
-[ -f .env ] && echo ".env: ok" || echo ".env: MISSING — copy from .env.example"
+[ -f vendor/autoload.php ] && echo "vendor: ok" || echo "vendor: MISSING — run task up"
+[ -f .env ] && echo ".env: ok" || echo ".env: MISSING — run task up"
+[ -f auth.json ] && echo "auth.json: ok" || echo "auth.json: MISSING — run task setup:auth"
 ```
 
-If `vendor/` is missing, look for a setup task (`task setup`, `task composer:install`) and run it. If
-no such task exists, use the fallback: `task dc:run -- php composer install`.
-
-If `.env` is missing, copy `.env.example` to `.env` manually (file copy, not a host command), then
-generate the application key: `task artisan:run:key:generate` or fallback
-`task dc:run -- php artisan key:generate`.
+`composer:install` has a precondition on `auth.json`; if it is missing, `task setup:auth` creates an
+empty one.
 
 ---
 
-## Step 2: Run the checks in order
+## Step 2: Run the checks
 
-### Runner prefix
-
-Commands must always be run through the Taskfile. Use this strict order:
-
-1. **Task (preferred):** `task <name>` — check `task --list` first
-2. **Composer/artisan scripts:** `task composer:run:<script>` or `task artisan:run:<command>` — when
-   `task --list` shows `task composer:run:*` or `task artisan:run:*`, the `*` is the script/command
-   name to use
-3. **Raw fallback:** `task dc:run -- php ./vendor/bin/<tool> [args]` — use only when no task exists
-
-Never use `./vendor/bin/...`, `php`, `composer`, or `npm` directly on the host.
-
-### Order of execution
-
-Run in this priority order — stop and fix before moving to the next group. A failure goes to the fix
-loop in `ci-green-check`.
-
-If `task composer:run:checkall` exists, run it now — it covers all composer tools in one go. Skip
-Steps 2a and 2b.
-
-### 2a. Code style (fastest, fix automatically)
-
-Always check `task --list` for available tasks first.
+### The fast path
 
 ```bash
-# Laravel Pint — preferred via task:
-task composer:run:pint
-
-# Laravel Pint — fallback:
-task dc:run -- php ./vendor/bin/pint
-
-# PHP-CS-Fixer — preferred via task:
-task composer:run:fixstyle
-
-# PHP-CS-Fixer — fallback:
-task dc:run -- php ./vendor/bin/php-cs-fixer fix
-
-# PHP_CodeSniffer — preferred via task:
-task composer:run:checkstyle
-
-# PHP_CodeSniffer — fallback:
-task dc:run -- php ./vendor/bin/phpcs
-task dc:run -- php ./vendor/bin/phpcbf   # if phpcs fails
+task checkall
 ```
 
-If Pint or php-cs-fixer auto-fixes files: note which files changed, continue.
+This is what CI effectively gates on: `composer:script:checkall` runs `composer validate --strict`,
+`checkstyle` (phpcs), `checktype` (phpstan), `test` (phpunit), `rector-dry` and `composer audit`, and
+`md:checkstyle` lints the markdown. Prefer it over running the tools one by one.
 
-### 2b. Static analysis
+### Individual tools
+
+Run these when `checkall` fails and you want a tight feedback loop on one tool.
 
 ```bash
-# PHPStan / Larastan — preferred via task:
-task composer:run:checktype
+# Code style — PHP_CodeSniffer
+task composer:script:checkstyle          # phpcs -n
+task composer:script:fixstyle            # phpcbf -n — auto-fixes, run this first on style failures
 
-# PHPStan / Larastan — fallback:
-task dc:run -- php ./vendor/bin/phpstan analyse
+# Static analysis — PHPStan / Larastan
+task composer:script:checktype
+task composer:script:update-type-baseline    # only when the user explicitly agrees to baseline it
+
+# Tests — PHPUnit (not Pest)
+task composer:script:test
+task composer:script:test-report             # with coverage
+task composer:script:update-test-snapshots   # only when a snapshot change is intended
+
+# Rector
+task composer:script:rector-dry
+task composer:script:rector                  # applies the changes
+
+# Dependency audits
+task composer:cmd:audit
+task npm:cmd:audit
+
+# Markdown
+task md:checkstyle
+task md:fixstyle
+
+# Front-end build
+task npm:script:build
 ```
 
-### 2c. Tests
+Pass extra arguments after `--`, e.g. `task composer:cmd:outdated -- --direct --major-only` or
+`task composer:script:test -- --filter=SomeTest`.
+
+Note what CI runs that these tasks do not: the **Model DocBlocks** job regenerates
+`php artisan ide-helper:models --write` and fails on a dirty `app/Models/`. Reproduce it with
+`task artisan:run:ide-helper:models -- --write` and commit any resulting diff.
+
+### E2E (only in projects with an `e2e` namespace)
 
 ```bash
-# Run tests — preferred via task:
-task composer:run:test
-```
-
-If no task exists, check which test runner is available: if `vendor/bin/pest` exists, use the Pest
-fallback; otherwise use the PHPUnit fallback.
-
-```bash
-# Pest fallback:
-task dc:run -- php ./vendor/bin/pest
-
-# PHPUnit fallback:
-task dc:run -- php ./vendor/bin/phpunit
-```
-
-### 2d. Other checks (if present)
-
-```bash
-# JS/TS lint — preferred via task:
-task npm:run:lint
-
-# JS/TS lint — fallback:
-task dc:run -- php npm run lint
-
-# JS/TS test — preferred via task:
-task npm:run:test
-
-# JS/TS test — fallback:
-task dc:run -- php npm run test
+task e2e:docker:test     # what CI runs, against the running stack
+task e2e:test            # Playwright UI on the host
 ```
 
 ---
@@ -181,3 +152,6 @@ task dc:run -- php npm run test
 Report per tool what ran and what its result was, so `ci-green-check` can drive the fix loop and
 produce the final ✅ / ⚠️ report. Do not declare the work done from here — that is `ci-green-check`'s
 Step 6.
+
+Checks that cannot run locally and must be left to CI: the Composer/NPM cache-warming jobs and
+anything needing `COMPOSER_AUTH_JSON` beyond a local `auth.json`.

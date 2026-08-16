@@ -14,8 +14,9 @@ This ensures all commands run safely through the Taskfile. Do not run docker com
 or composer directly on the host.
 
 **php-checks**:  
-Prepare the environment and run the PHP/Laravel quality tools locally through the Taskfile — Pint,
-PHP-CS-Fixer, PHP_CodeSniffer, PHPStan/Larastan, Pest/PHPUnit and the `npm:run:*` tasks. This is the
+Prepare the environment (`task up`) and run the PHP/Laravel quality tools locally through the
+Taskfile — `task checkall`, or the individual `composer:script:*` tools (PHP_CodeSniffer,
+PHPStan/Larastan, PHPUnit, Rector), the dependency audits and the markdown linter. This is the
 PHP/Laravel layer of the `ci-green-check` skill in the `github` plugin, which owns check discovery,
 the fix loop, and the final report.
 

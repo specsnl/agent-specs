@@ -30,7 +30,7 @@ to delete the remote branch before continuing.
 4. Check if local `main` branch is up to date with `origin/main`:
     - If behind → abort and inform the user to pull the latest changes.
     - If ahead with unique commits → abort and inform the user to push or rebase their commits.
-    - If diverged → This can occur when testing locally (e.g., running `task test`) — the local branch may have commits
+    - If diverged → This can occur when testing locally (e.g., running `task checkall`) — the local branch may have commits
     not yet pushed to the remote. Ask the user which branch to use as the source for the vendor-updates branch in step
     5: `origin/main` or local `main`. **Choosing local `main` allows you to test iterations without pushing to the 
     remote.**  
@@ -66,7 +66,7 @@ PHP container).
 2. Run full backend checks: `task checkall`. If any check fails, attempt to fix the issue, then
 re-run `task checkall` to confirm resolution before proceeding. If you cannot fix the issues,
 abort and report the errors.
-    - If there are any style issues, run `task composer:run:fixstyle` to automatically fix them.
+    - If there are any style issues, run `task composer:script:fixstyle` to automatically fix them.
     If that does not work, try to fix style issues manually. Re-run `task checkall` after each
     attempt. If you cannot fix the style issues, abort and report the errors.
     - If there are any PHPStan issues, try to fix them. Do not fix PHPStan issues by adding them to
@@ -97,7 +97,7 @@ and superseded by maintained `specsnl` equivalents. This phase migrates any such
     Use the replacement package named in that warning **verbatim**.
     - If the abandonment warning does not name an explicit replacement, fall back to a straight
     vendor-prefix swap: `ilyes512/<name>` → `specsnl/<name>`. Before relying on the fallback, confirm
-    the `specsnl/<name>` package actually exists (e.g. via `task composer:do:outdated` output or the
+    the `specsnl/<name>` package actually exists (e.g. via `task composer:cmd:outdated` output or the
     package's Packagist page).
     - If a package is **not** abandoned, or its abandonment notice points to a replacement **outside**
     the `specsnl` namespace, do **not** replace it. Leave it in place and note it in your final report.
@@ -130,7 +130,7 @@ Abort on any failure.
 ## Phase 6 --- Frontend Dependencies
 
 1. Update NPM dependencies: `task npm:update`.
-2. Build assets: `task npm:run:build`.
+2. Build assets: `task npm:script:build`.
 3. Check git status for all changed files. Stage only files directly related to the NPM update (e.g.,
 `package-lock.json`, `node_modules/`, built assets) and commit. Commit message: `chore(deps): Updated NPM
 dependencies`. For any remaining unrelated changed files, commit them separately with a descriptive message.
@@ -171,7 +171,7 @@ Abort on any failure.
         - If you still cannot find a version **equal to or newer** than the current one, inform the user
           about this discrepancy and skip updating that image.
 3. Update any outdated image references in-place across all scanned files.
-4. After updating, rebuild the local Docker images: `task dc:build`.
+4. After updating, rebuild the local Docker images: `task build`.
 5. Reset the environment to make sure it is using the latest images: `task reset`.
 6. Run full backend checks: `task checkall`.
 7. Check `git status` for all changed files. Stage only files directly related to Docker image updates (e.g.,
@@ -212,9 +212,9 @@ State below), then report the Phase 8 summary to the user.
 
 1. Run the following audit commands and create a summary of the results. Suggest to the user to fix any of the issues
 that are found:
-    1. Run `task composer:do:audit`.
-    2. Run `task npm:do:audit`.
-2. Run `task composer:do:outdated -- --direct --major-only` to check for any major updates that are available for direct
+    1. Run `task composer:cmd:audit`.
+    2. Run `task npm:cmd:audit`.
+2. Run `task composer:cmd:outdated -- --direct --major-only` to check for any major updates that are available for direct
 dependencies. If there are any, create a summary and suggest to the user to update those as well.
 
 ------------------------------------------------------------------------

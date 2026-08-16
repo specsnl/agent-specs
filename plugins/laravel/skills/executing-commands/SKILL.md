@@ -33,11 +33,34 @@ To list all available tasks, use:
 task --list
 ```
 
+## Task namespaces
+
+The Taskfile is split into namespaces that are included from `Taskfile.yml` (`.taskfiles/Taskfile.<ns>.yml`).
+The wildcard tasks take the rest of the task name as their argument, and everything after `--` is
+forwarded to the underlying command:
+
+| Task                                                   | Runs                                                                                                    |
+|--------------------------------------------------------|---------------------------------------------------------------------------------------------------------|
+| `task composer:script:<name>`                          | a composer script from `composer.json` (`checkall`, `checkstyle`, `checktype`, `test`, `rector-dry`, …) |
+| `task composer:cmd:<name>`                             | a raw composer command (`outdated`, `audit`, `why`, …)                                                  |
+| `task artisan:run:<command>`                           | `php artisan <command>` — colons included, e.g. `artisan:run:migrate:fresh`                             |
+| `task npm:script:<name>`                               | an npm script from `package.json` (`build`, `test:e2e`, …)                                              |
+| `task npm:cmd:<name>`                                  | a raw npm command (`audit`, `outdated`, …)                                                              |
+| `task db:migrate:<env>`                                | migrations for `local` or `testing`                                                                     |
+| `task md:checkstyle` / `md:fixstyle` / `md:fix-tables` | markdown lint / fix / table alignment                                                                   |
+
+Examples with arguments: `task composer:cmd:outdated -- --direct --major-only`,
+`task artisan:run:db:seed -- --class='Database\Seeders\E2ETestSeeder'`.
+
+Older projects may still use the previous `composer:run:*` / `npm:run:*` / `composer:do:*` naming —
+`task --list` is always the source of truth.
+
 If a task does not exist:
 
-1. Inspect the [Taskfile](./Taskfile.yml).
+1. Inspect the [Taskfile](./Taskfile.yml) and the files it includes under `.taskfiles/`.
 2. Prefer creating or extending a task.
-3. As a temporary fallback, use `task dc:run -- php <command>` unless another service is explicitly required. This still executes via the Taskfile.
+3. As a temporary fallback, use `task dc:run:php -- <command>` unless another service is explicitly
+   required (`task dc:run:<service> -- <command>`). This still executes via the Taskfile.
 
 ## Container Context
 
@@ -69,17 +92,24 @@ task ps
 Run tests:
 
 ```shell
-task test
+task composer:script:test
+```
+
+Run all checks (phpcs, phpstan, phpunit, rector, audits, markdown):
+
+```shell
+task checkall
 ```
 
 Install dependencies:
 
 ```shell
 task composer:install
+task npm:install
 ```
 
-Run npm:
+Anything without a task:
 
 ```shell
-task dc:run -- php npm install
+task dc:run:php -- <command>
 ```
