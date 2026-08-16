@@ -1,0 +1,12 @@
+{
+    "name": "code",
+    "description": "A Specs plugin with cross-language code authoring conventions",
+    "author": {
+        "name": "Specsnl Team",
+        "email": "info@specs.nl",
+        "url": "https://github.com/specsnl"
+    },
+    "repository": "specsnl/agent-specs",
+    "license": "MIT",
+    "keywords": ["code", "comments", "conventions", "specs", "plugin"]
+}

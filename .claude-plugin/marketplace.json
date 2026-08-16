@@ -27,6 +27,12 @@
             "description": "A Specs plugin for creating Linear issues from raw client input"
         },
         {
+            "name": "code",
+            "source": "./plugins/code",
+            "version": "0.0.2",
+            "description": "A Specs plugin with cross-language code authoring conventions"
+        },
+        {
             "name": "github",
             "source": "./plugins/github",
             "version": "0.0.8",
