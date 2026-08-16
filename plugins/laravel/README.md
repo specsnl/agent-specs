@@ -13,10 +13,11 @@ REQUIRED: Execute this skill before running ANY project commands (composer, npm,
 This ensures all commands run safely through the Taskfile. Do not run docker compose, npm, php,
 or composer directly on the host.
 
-**ci-green-check**:  
-After every code change, discover and run all CI checks found in `.github/` locally before finishing.
-Reads `.github/workflows` to find all checks, runs everything that can be run locally (tests, linters,
-static analysis), attempts to auto-fix failures, and reports checks that require cloud/secrets.
+**php-checks**:  
+Prepare the environment and run the PHP/Laravel quality tools locally through the Taskfile — Pint,
+PHP-CS-Fixer, PHP_CodeSniffer, PHPStan/Larastan, Pest/PHPUnit and the `npm:run:*` tasks. This is the
+PHP/Laravel layer of the `ci-green-check` skill in the `github` plugin, which owns check discovery,
+the fix loop, and the final report.
 
 **fix-translations**:  
 Find, fix, or translate source-language values in translation files. Scans all translation files
