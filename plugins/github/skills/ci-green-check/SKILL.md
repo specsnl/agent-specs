@@ -32,8 +32,8 @@ ls Taskfile.yml Taskfile.yaml taskfile.yml taskfile.yaml 2>/dev/null
 If a Taskfile exists, read it fully and extract:
 - **Setup tasks**: anything that installs dependencies, prepares config, runs migrations, seeds —
   common names: `setup`, `install`, `init`, `bootstrap`
-- **Check tasks**: anything that runs tests or linters — common names: `test`, `lint`, `analyse`,
-  `check`, `ci`
+- **Check tasks**: anything that runs tests or linters — common names: `checkall` (the aggregate task
+  in Specs projects), `test`, `lint`, `analyse`, `check`, `ci`
 - **Utility tasks**: whatever else is useful during environment setup
 
 List all discovered tasks with their description. **Prefer Task commands over raw tool invocations**
