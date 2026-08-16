@@ -17,6 +17,7 @@ The marketplace namespace is `specs`. So after adding this marketplace you will 
 | laravel@specs      | A Specs Laravel specific plugin                                                                    |
 | docker@specs       | A Specs Docker specific plugin                                                                     |
 | linear@specs       | A Specs plugin for creating Linear issues from raw client input                                    |
+| code@specs         | A Specs plugin with cross-language code authoring conventions                                      |
 | github@specs       | A GitHub-specific plugin for Specs                                                                 |
 | git-workflow@specs | Atomic-commit Git workflow skills: amend/fixup, conflict resolution, reflog undo, bisect debugging |
 
