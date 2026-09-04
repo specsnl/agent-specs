@@ -48,6 +48,14 @@
             "description": "Review and comment on plans, code diffs, and frontend elements, then send feedback directly to your agent."
         },
         {
+            "name": "gh-stack",
+            "source": {
+                "source": "github",
+                "repo": "github/gh-stack"
+            },
+            "description": "Manages stacked PRs and splits multi-part work into reviewable branches with the gh-stack GitHub CLI extension."
+        },
+        {
             "name": "git-workflow",
             "source": {
                 "source": "git-subdir",
