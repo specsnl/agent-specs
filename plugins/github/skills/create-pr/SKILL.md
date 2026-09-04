@@ -72,7 +72,8 @@ locally, and hands off to `php-checks` in Laravel/PHP projects.
   ```
 
   Use the Linear issue slug as the branch name if one was provided.
-- Commit messages must be a **single subject line** — no body, no bullet points.
+- Commit messages lead with a **single subject line**. A body is allowed when it
+  adds context the subject can't carry, but keep it succinct — a few lines at most.
 - Never add a `Co-Authored-By` trailer or mention Claude in any commit message.
 
 ---
