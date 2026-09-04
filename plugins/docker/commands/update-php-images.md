@@ -56,7 +56,7 @@ Abort on any failure.
 
 All three Dockerfiles pin the same Pie version via:
 
-```
+```dockerfile
 COPY --from=ghcr.io/php/pie:<version>-bin /pie /usr/bin/pie
 ```
 

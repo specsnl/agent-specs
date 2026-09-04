@@ -40,6 +40,7 @@ docker run --rm --volume $(pwd):/app --workdir /app node:24.15.0-bookworm bash -
 ```
 
 This command:
+
 - Mounts the current directory into a Node.js 24 container
 - Uses `shopt -s globstar` to enable recursive `**` glob expansion in bash
 - Runs `markdown-table-formatter` on every `.md` file found recursively

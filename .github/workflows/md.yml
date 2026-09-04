@@ -1,0 +1,55 @@
+name: Markdown
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  changes:
+    name: Changes Filter
+    runs-on: ubuntu-24.04
+    outputs:
+      mdlint: ${{ steps.filter.outputs.mdlint }}
+    steps:
+      - name: Checkout repository
+        if: github.event_name != 'pull_request'
+        uses: actions/checkout@v7
+      - uses: dorny/paths-filter@v4
+        id: filter
+        with:
+          filters: |
+            mdlint:
+              - '**.md'
+              - '.markdownlint-cli2.yaml'
+              - '.github/workflows/md.yml'
+
+  mdlint:
+    name: Check markdown style
+    runs-on: ubuntu-24.04
+    needs: changes
+    if: ${{ github.event_name == 'workflow_dispatch' || needs.changes.outputs.mdlint == 'true' }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+      - name: Lint Markdown files
+        uses: DavidAnson/markdownlint-cli2-action@v23
+
+  gate-mdlint:
+    name: Markdown gate
+    runs-on: ubuntu-24.04
+    needs: [changes, mdlint]
+    if: always()
+    steps:
+      - run: exit 1
+        if: needs.changes.result != 'success' || contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+      - run: exit 0

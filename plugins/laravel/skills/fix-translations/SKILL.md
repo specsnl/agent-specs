@@ -37,6 +37,7 @@ the source language. A value needs translation if it:
 - Contains a typo that is clearly not {{TARGET_LANGUAGE}}
 
 Do **not** flag:
+
 - Keys (array keys are in the source language by convention). In JSON catalogues the key *is* the
   source string — translate the value, leave the key byte-for-byte untouched.
 - Technical/universal strings like email addresses, URLs, currency symbols
@@ -64,7 +65,7 @@ Edit each file directly using precise string replacements. Do not reformat or re
 
 Stage all modified translation files by name (never `git add -A`). Commit with a **single subject line**:
 
-```
+```text
 Translate remaining source-language strings in {{TARGET_LANGUAGE}} translation files
 ```
 
@@ -77,7 +78,8 @@ hands off to `php-checks` for this project's PHP tooling — translation files a
 Provide the following title and body:
 
 **PR title** (required — CI will fail without it):
-```
+
+```text
 {{PR_TITLE_PREFIX}}: Translate remaining source-language strings in {{TARGET_LANGUAGE}} translation files
 ```
 
@@ -85,6 +87,7 @@ Provide the following title and body:
 - If no issue number was provided, use: `{{PR_TITLE_PREFIX_ZERO}}`
 
 **PR body**:
+
 ```md
 ## Summary
 - Translated remaining source-language strings in {{TARGET_LANGUAGE}} translation files

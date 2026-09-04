@@ -30,6 +30,7 @@ ls Taskfile.yml Taskfile.yaml taskfile.yml taskfile.yaml 2>/dev/null
 ```
 
 If a Taskfile exists, read it fully and extract:
+
 - **Setup tasks**: anything that installs dependencies, prepares config, runs migrations, seeds —
   common names: `setup`, `install`, `init`, `bootstrap`
 - **Check tasks**: anything that runs tests or linters — common names: `checkall` (the aggregate task
@@ -40,6 +41,7 @@ List all discovered tasks with their description. **Prefer Task commands over ra
 when an equivalent Task exists — they often handle the right flags and order automatically.
 
 Check that `task` is installed:
+
 ```bash
 task --version 2>/dev/null || echo "task not installed"
 ```
@@ -55,6 +57,7 @@ find .github/workflows -name "*.yml" -o -name "*.yaml" 2>/dev/null | head -20
 ```
 
 For each workflow file found, read it and extract:
+
 - **Test jobs**: unit tests, feature tests, integration tests
 - **Static analysis**: type checkers and analysers
 - **Code style**: formatters and style linters
@@ -66,6 +69,7 @@ Cross-reference workflow steps against Taskfile tasks — if a workflow step run
 maps to the Task you already found.
 
 Group everything into two lists:
+
 1. ✅ **Runnable locally** — document the exact command to run (Task command preferred, raw command
    as fallback)
 2. ⚠️ **Requires cloud/secrets** — note name and why it's skipped
@@ -134,7 +138,7 @@ you can explain why.
 
 After all local checks pass, report checks that were skipped:
 
-```
+```text
 ⚠️  The following CI checks cannot be run locally and will be verified in CI:
 - [job name]: requires secret `SONAR_TOKEN` (SonarCloud scan)
 - [job name]: deploys to production (deploy step)
@@ -147,7 +151,7 @@ After all local checks pass, report checks that were skipped:
 
 When all locally runnable checks are green, confirm:
 
-```
+```text
 ✅ All local checks passed:
 - [style tool]: clean (N files reformatted)
 - [analysis tool]: no errors

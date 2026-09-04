@@ -61,7 +61,7 @@ version:
 
 Examples for PHP 8.5:
 
-```
+```bash
 docker pull ghcr.io/specsnl/php85:latest                      # fpm runtime
 docker pull ghcr.io/specsnl/php85/builder:latest              # fpm builder
 docker pull ghcr.io/specsnl/php85/builder_nodejs:latest       # fpm builder + Node.js

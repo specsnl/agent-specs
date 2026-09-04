@@ -2,7 +2,7 @@
 
 Specs's Claude Code (marketplace) plugins.
 
-## Installation instructions:
+## Installation instructions
 
 Claude: `claude plugin marketplace add specsnl/agent-specs`
 

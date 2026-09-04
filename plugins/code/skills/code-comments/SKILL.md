@@ -40,22 +40,28 @@ worse than none.
 Write a comment only when it is one of these:
 
 - **Why, not what.** A non-obvious decision, tradeoff, or constraint.
+
   ```php
   // Cast: the upstream API returns numeric strings for these fields.
   $total = (int) $payload['total'];
   ```
+
 - **A workaround and its cause**, ideally with a link — an upstream bug, a vendor quirk, a spec
   deviation.
+
   ```ts
   // Safari fires resize before layout settles; see https://bugs.webkit.org/show_bug.cgi?id=170595
   requestAnimationFrame(measure);
   ```
+
 - **Non-obvious consequences.** Ordering that matters, a lock that must be held, a side effect a
   caller would not expect.
+
   ```go
   // Must run before Close(): the flush path reads the connection.
   w.Flush()
   ```
+
 - **Genuinely subtle algorithms or math**, or a regex that is not self-evident.
 - **Public API contracts**, where the language's ecosystem expects them and the file already has
   them.
