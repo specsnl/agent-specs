@@ -28,6 +28,7 @@ Fetch the full issue before touching git so you understand the actual requiremen
   `ABC-456`).
 
 Extract and note:
+
 - The concrete requirement and scope.
 - Acceptance criteria / definition of done.
 - Any linked issues, designs, or discussion in comments that change the approach.

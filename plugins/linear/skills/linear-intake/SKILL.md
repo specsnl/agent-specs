@@ -20,13 +20,15 @@ Converts raw {{INPUT_LANGUAGE}} client input (WhatsApp, email, verbal, or a Line
 ## Specs rules
 
 ### General rules
+
 - Short and dense. No fluff, no preamble.
 - Markdown. Use `code` for field/table/column/UI names. Use **bold** for key constraints.
 
 ### Feature request → IST/SOLL (small) or Current/Want (larger)
 
 **Small change — IST/SOLL:**
-```
+
+```md
 IST:
 - [what exists now]
 
@@ -45,7 +47,8 @@ SOLL:
 ```
 
 **Larger feature — structured sections:**
-```
+
+```md
 ## Current situation
 - [what exists now]
 - [relevant context]
@@ -68,7 +71,8 @@ SOLL:
 ```
 
 ### Bug report
-```
+
+```md
 [One-line summary of what's wrong]
 
 Steps / context:
@@ -88,22 +92,26 @@ Steps / context:
 ```
 
 ### Operational task (content, newsletter, images)
-```
+
+```md
 [Short imperative title: "Prepare April newsletter for sending"]
 
 Deliverables:
 - [list attachments/content/actions]
 - Deadline: [if mentioned]
 ```
+
 *Operational tasks don't need acceptance criteria or QA sections.*
 
 ### Title format
+
 - Verb-first, concise: `Add payment deadline to order confirmation email`
 - Bugs: `Fix [thing] in [location]` or `[Thing] not working in [location]`
 - No user story format ("Als gebruiker wil ik...")
 - No ticket numbers in the title
 
 ### Priority
+
 {{PRIORITY_TABLE}}
 
 ---
@@ -152,6 +160,7 @@ Always assign to one of these {{OUTPUT_TEAM}} projects:
 ---
 
 ## Notes
+
 - Never add Specs internal commentary to the Linear description.
 - When input is ambiguous, pick the most likely interpretation and draft — don't over-ask.
 - Default priority when uncertain: Normal (3).

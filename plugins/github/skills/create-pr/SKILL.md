@@ -25,6 +25,7 @@ find .github/workflows -name "*.yml" -o -name "*.yaml" | sort
 ```
 
 For each workflow file, identify:
+
 - Jobs triggered by `pull_request` events
 - Any title validation steps (e.g. `pr-title-checker`, `action-semantic-pull-request`)
 - Required status checks that must pass
@@ -38,12 +39,14 @@ If not found, check for a workflow step that enforces title format and read its 
 ### 1c. Check branch rules
 
 Read `.github/rulesets/*.json` if present. Note:
+
 - Required merge method (Specs projects use merge commits only — no squash/rebase)
 - Required status checks
 
 ### 1d. Summarise before proceeding
 
 Report:
+
 - What CI jobs will run on this PR
 - Required title format / prefix
 - Any merge restrictions
@@ -63,9 +66,11 @@ locally, and hands off to `php-checks` in Laravel/PHP projects.
 
 - Confirm the working tree is clean (`git status`)
 - Confirm not on `main`/`master`/`develop` — if so, create a branch first:
+
   ```bash
   git checkout -b kebab-case-description
   ```
+
   Use the Linear issue slug as the branch name if one was provided.
 - Commit messages must be a **single subject line** — no body, no bullet points.
 - Never add a `Co-Authored-By` trailer or mention Claude in any commit message.

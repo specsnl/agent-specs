@@ -80,6 +80,7 @@ Config conventions worth adopting:
 ### 2b. Shared helpers (extract, don't inline)
 
 Create `e2e/helpers/`:
+
 - `auth.ts` — `loginStandard(page, url, email, pw)` and `loginTenant(page, url, email, pw, workspaceName)` (open the `Select`, `getByRole('option', { name })`). The `auth.setup.ts` imports these; spec files never reach into the setup file.
 - `panels.ts` — `panelUrl(role, slug, path)` builders + the known workspace slugs.
 - `filament.ts` — `clickHeaderAction(label)`, `confirmModal()` (scope to `getByRole('dialog')`), `submitActionForm(fields)`, `expectStateBadge(label)`, `expectActionAbsent(label)` (assert `toHaveCount(0)`), `expectForbidden()` (cross-tenant 403/redirect — confirm the app's actual behavior once and standardize).
@@ -88,7 +89,7 @@ Create `e2e/helpers/`:
 
 Split specs by **role**, then by **resource** within the role:
 
-```
+```text
 e2e/
   helpers/{auth,panels,filament}.ts
   auth.setup.ts
@@ -102,6 +103,7 @@ false confidence. Add a dedicated `E2eSeeder` (factory-built) that creates **one
 per pivotal state** so each workflow test gets a forward-only, single-consumer record
 with a stable reference for deep-linking. Guard it behind an env/`--seeder` flag so it
 doesn't pollute normal seeds. Three data buckets:
+
 1. **read-only / list / negative / isolation** → seeded fixtures by stable reference.
 2. **state-transition workflows** → a dedicated seeded record pre-placed in the required state.
 3. **create / duplicate / destructive** → create-in-test with unique suffixes.

@@ -32,7 +32,7 @@ to delete the remote branch before continuing.
     - If ahead with unique commits → abort and inform the user to push or rebase their commits.
     - If diverged → This can occur when testing locally (e.g., running `task checkall`) — the local branch may have commits
     not yet pushed to the remote. Ask the user which branch to use as the source for the vendor-updates branch in step
-    5: `origin/main` or local `main`. **Choosing local `main` allows you to test iterations without pushing to the 
+    5: `origin/main` or local `main`. **Choosing local `main` allows you to test iterations without pushing to the
     remote.**  
     **Warning:** choosing the local main branch may lead to merge conflicts later if the remote main has commits the local
     branch doesn't know about (common when you don't push test iterations).
@@ -257,6 +257,7 @@ committed separately per the Commit Strategy):
   **Suggested PR body**: Include only the bullets for phases that produced actual changes. If any
   additional side-effect commits were made (e.g. `docs: Updated AGENTS.md`), add them as extra bullets
   under `## Summary`.
+
   ```md
   ## Summary
   - Updated Composer dependencies
