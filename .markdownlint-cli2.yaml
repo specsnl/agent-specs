@@ -1,0 +1,27 @@
+# CLI config: https://github.com/DavidAnson/markdownlint-cli2?tab=readme-ov-file#markdownlint-cli2jsonc
+# Lint rules: https://github.com/DavidAnson/markdownlint?tab=readme-ov-file#rules--aliases
+
+config:
+  # Skill and command files open with YAML frontmatter and often a prose pointer,
+  # not a heading.
+  first-line-heading: false
+  line-length:
+    line_length: 1000
+    tables: false
+  no-inline-html:
+    allowed_elements:
+      - dl
+      - dt
+      - dd
+      - details
+      - summary
+      - code
+  ul-style:
+    style: dash
+
+globs:
+  - '**/*.md'
+  - '!node_modules'
+
+gitignore: true
+showFound: true

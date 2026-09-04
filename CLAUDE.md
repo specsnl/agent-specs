@@ -32,4 +32,15 @@ change a plugin's description, update it in both files.
 
 After editing any markdown table in this repo, use the
 `code:autofix-markdown-tables` skill to keep columns properly padded and
-aligned.
+aligned. It runs this repo's `md:fix-tables` task.
+
+## Markdown linting
+
+Every `.md` file is linted with `markdownlint-cli2` (config in
+`.markdownlint-cli2.yaml`), and the `Markdown` workflow enforces it in CI.
+After editing markdown, run:
+
+```bash
+task md:checkstyle   # lint only
+task md:fixstyle     # align tables, then apply autofixable lint rules
+```
