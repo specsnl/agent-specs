@@ -6,8 +6,9 @@ description: >
   writing one. The default is no comment. Also triggers when the user says "too many comments", "stop
   adding comments", "this is too verbose", "should this be documented?", "add a docblock", "clean up
   the comments", or reviews a diff full of narration. Covers the short allowlist of warranted
-  comments, the ban list (restating the code, section banners, redundant docblocks, diff/session
-  narration, commented-out code), style rules, and a pre-finish sweep of the diff.
+  comments, the ban list (restating the code, duplicating one rationale across sites, section
+  banners, redundant docblocks, diff/session narration, commented-out code), style rules, and a
+  pre-finish sweep of the diff.
 ---
 
 # Code comments
@@ -71,6 +72,24 @@ $user = $this->users->find($id);   // ✗
 
 $user = $this->users->find($id);   // ✓
 ```
+
+### The same rationale at every site it touches
+
+State a shared "why" once, at the definition that owns it, and cross-reference it from the rest.
+
+```go
+// Records carry the row values themselves, so JSON emits 12 rather than "12".
+type TableData struct { /* ... */ }
+
+// WriteTable marshals Records so a number stays a number rather than the
+// display string the table renders.                          ✗ same reason again
+// WriteTable emits one JSON object per row. See TableData.    ✓
+func (w *JSONWriter) WriteTable(data TableData)
+```
+
+Rewording a duplicated rationale later is N edits, and N chances to leave a stale copy behind.
+Near-duplicates count: four helpers that each explain why a `(nil, nil)` return has to be checked
+want one explanation and three pointers to it.
 
 ### Section banners
 
@@ -141,6 +160,8 @@ Rename instead.
 - Above the code, not trailing — trailing is acceptable only for a very short note on a short line.
 - One line where possible.
 - Never repeat what the line next to it already says.
+- A name that already carries the contract (`mustLoadConfig`, `tryParse`, `assertValid`) does not
+  need it restated — document only what the name cannot say.
 
 ## The self-check
 
